@@ -5,7 +5,7 @@ metadata:
 spec:
   forProvider:
     namespace: default
-    interval: 30s
+    interval: 1m
     rule:
     - expr: up
       record: job:up:count
