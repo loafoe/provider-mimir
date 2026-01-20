@@ -2,6 +2,12 @@ apiVersion: meta.pkg.crossplane.io/v1
 kind: Provider
 metadata:
   name: provider-mimir
+  annotations:
+    meta.crossplane.io/maintainer: Andy Lo-A-Foe <andy.loafoe@gmail.com>
+    meta.crossplane.io/source: github.com/dip-software/provider-mimir
+    meta.crossplane.io/license: Apache-2.0
+    meta.crossplane.io/description: |
+      A Crossplane provider to manage Mimir ruler resources.
 spec:
   capabilities:
     - SafeStart
