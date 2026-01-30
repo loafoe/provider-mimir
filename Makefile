@@ -2,7 +2,7 @@
 # Setup Project
 
 PROJECT_NAME ?= provider-mimir
-PROJECT_REPO ?= github.com/dip-software/$(PROJECT_NAME)
+PROJECT_REPO ?= github.com/loafoe/$(PROJECT_NAME)
 
 export TERRAFORM_VERSION ?= 1.5.7
 

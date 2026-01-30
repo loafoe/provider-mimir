@@ -10,10 +10,10 @@ package namespaced
 import (
 	"k8s.io/apimachinery/pkg/runtime"
 
-	v1alpha1 "github.com/dip-software/provider-mimir/apis/namespaced/alertmanager/v1alpha1"
-	v1alpha1ruler "github.com/dip-software/provider-mimir/apis/namespaced/ruler/v1alpha1"
-	v1alpha1namespaced "github.com/dip-software/provider-mimir/apis/namespaced/v1alpha1"
-	v1beta1 "github.com/dip-software/provider-mimir/apis/namespaced/v1beta1"
+	v1alpha1 "github.com/loafoe/provider-mimir/apis/namespaced/alertmanager/v1alpha1"
+	v1alpha1ruler "github.com/loafoe/provider-mimir/apis/namespaced/ruler/v1alpha1"
+	v1alpha1namespaced "github.com/loafoe/provider-mimir/apis/namespaced/v1alpha1"
+	v1beta1 "github.com/loafoe/provider-mimir/apis/namespaced/v1beta1"
 )
 
 func init() {

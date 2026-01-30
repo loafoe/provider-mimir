@@ -7,7 +7,7 @@ import (
 
 	"github.com/crossplane/upjet/v2/pkg/pipeline"
 
-	"github.com/dip-software/provider-mimir/config"
+	"github.com/loafoe/provider-mimir/config"
 )
 
 func main() {

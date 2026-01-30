@@ -1,4 +1,4 @@
-module github.com/dip-software/provider-mimir
+module github.com/loafoe/provider-mimir
 
 go 1.24.7
 

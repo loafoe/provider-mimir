@@ -6,15 +6,15 @@ import (
 
 	ujconfig "github.com/crossplane/upjet/v2/pkg/config"
 
-	alertmanagerCluster "github.com/dip-software/provider-mimir/config/cluster/alertmanager"
-	rulerCluster "github.com/dip-software/provider-mimir/config/cluster/ruler"
-	alertmanagerNamespaced "github.com/dip-software/provider-mimir/config/namespaced/alertmanager"
-	rulerNamespaced "github.com/dip-software/provider-mimir/config/namespaced/ruler"
+	alertmanagerCluster "github.com/loafoe/provider-mimir/config/cluster/alertmanager"
+	rulerCluster "github.com/loafoe/provider-mimir/config/cluster/ruler"
+	alertmanagerNamespaced "github.com/loafoe/provider-mimir/config/namespaced/alertmanager"
+	rulerNamespaced "github.com/loafoe/provider-mimir/config/namespaced/ruler"
 )
 
 const (
 	resourcePrefix = "mimir"
-	modulePath     = "github.com/dip-software/provider-mimir"
+	modulePath     = "github.com/loafoe/provider-mimir"
 )
 
 //go:embed schema.json

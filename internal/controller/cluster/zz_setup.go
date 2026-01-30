@@ -9,11 +9,11 @@ import (
 
 	"github.com/crossplane/upjet/v2/pkg/controller"
 
-	config "github.com/dip-software/provider-mimir/internal/controller/cluster/alertmanager/config"
-	providerconfig "github.com/dip-software/provider-mimir/internal/controller/cluster/providerconfig"
-	groupalerting "github.com/dip-software/provider-mimir/internal/controller/cluster/ruler/groupalerting"
-	grouprecording "github.com/dip-software/provider-mimir/internal/controller/cluster/ruler/grouprecording"
-	rules "github.com/dip-software/provider-mimir/internal/controller/cluster/ruler/rules"
+	config "github.com/loafoe/provider-mimir/internal/controller/cluster/alertmanager/config"
+	providerconfig "github.com/loafoe/provider-mimir/internal/controller/cluster/providerconfig"
+	groupalerting "github.com/loafoe/provider-mimir/internal/controller/cluster/ruler/groupalerting"
+	grouprecording "github.com/loafoe/provider-mimir/internal/controller/cluster/ruler/grouprecording"
+	rules "github.com/loafoe/provider-mimir/internal/controller/cluster/ruler/rules"
 )
 
 // Setup creates all controllers with the supplied logger and adds them to

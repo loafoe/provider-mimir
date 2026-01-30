@@ -34,14 +34,14 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	apisCluster "github.com/dip-software/provider-mimir/apis/cluster"
-	apisNamespaced "github.com/dip-software/provider-mimir/apis/namespaced"
-	"github.com/dip-software/provider-mimir/config"
-	"github.com/dip-software/provider-mimir/internal/clients"
-	controllerCluster "github.com/dip-software/provider-mimir/internal/controller/cluster"
-	controllerNamespaced "github.com/dip-software/provider-mimir/internal/controller/namespaced"
-	"github.com/dip-software/provider-mimir/internal/features"
-	"github.com/dip-software/provider-mimir/internal/version"
+	apisCluster "github.com/loafoe/provider-mimir/apis/cluster"
+	apisNamespaced "github.com/loafoe/provider-mimir/apis/namespaced"
+	"github.com/loafoe/provider-mimir/config"
+	"github.com/loafoe/provider-mimir/internal/clients"
+	controllerCluster "github.com/loafoe/provider-mimir/internal/controller/cluster"
+	controllerNamespaced "github.com/loafoe/provider-mimir/internal/controller/namespaced"
+	"github.com/loafoe/provider-mimir/internal/features"
+	"github.com/loafoe/provider-mimir/internal/version"
 )
 
 const (

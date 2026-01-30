@@ -11,8 +11,8 @@ import (
 
 	"github.com/crossplane/upjet/v2/pkg/terraform"
 
-	clusterv1beta1 "github.com/dip-software/provider-mimir/apis/cluster/v1beta1"
-	namespacedv1beta1 "github.com/dip-software/provider-mimir/apis/namespaced/v1beta1"
+	clusterv1beta1 "github.com/loafoe/provider-mimir/apis/cluster/v1beta1"
+	namespacedv1beta1 "github.com/loafoe/provider-mimir/apis/namespaced/v1beta1"
 )
 
 const (

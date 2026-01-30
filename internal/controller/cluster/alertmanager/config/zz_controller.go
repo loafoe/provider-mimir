@@ -21,8 +21,8 @@ import (
 	"github.com/pkg/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	v1alpha1 "github.com/dip-software/provider-mimir/apis/cluster/alertmanager/v1alpha1"
-	features "github.com/dip-software/provider-mimir/internal/features"
+	v1alpha1 "github.com/loafoe/provider-mimir/apis/cluster/alertmanager/v1alpha1"
+	features "github.com/loafoe/provider-mimir/internal/features"
 )
 
 // SetupGated adds a controller that reconciles Config managed resources.
