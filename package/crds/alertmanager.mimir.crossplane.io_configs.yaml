@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-  name: configs.alertmanager.mimir.m.dip.io
+  name: configs.alertmanager.mimir.crossplane.io
 spec:
-  group: alertmanager.mimir.m.dip.io
+  group: alertmanager.mimir.crossplane.io
   names:
     categories:
     - crossplane
@@ -16,7 +16,7 @@ spec:
     listKind: ConfigList
     plural: configs
     singular: config
-  scope: Namespaced
+  scope: Cluster
   versions:
   - additionalPrinterColumns:
     - jsonPath: .status.conditions[?(@.type=='Synced')].status
@@ -56,6 +56,20 @@ spec:
           spec:
             description: ConfigSpec defines the desired state of Config
             properties:
+              deletionPolicy:
+                default: Delete
+                description: |-
+                  DeletionPolicy specifies what will happen to the underlying external
+                  when this managed resource is deleted - either "Delete" or "Orphan" the
+                  external resource.
+                  This field is planned to be deprecated in favor of the ManagementPolicies
+                  field in a future release. Currently, both could be set independently and
+                  non-default values would be honored if the feature flag is enabled.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                enum:
+                - Orphan
+                - Delete
+                type: string
               forProvider:
                 properties:
                   global:
@@ -80,13 +94,18 @@ spec:
                                         Sets the credentials.
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     type:
                                       description: |-
@@ -105,13 +124,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     username:
                                       description: (String)
@@ -122,13 +146,18 @@ spec:
                                 description: (String, Sensitive)
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               enableHttp2:
                                 description: |-
@@ -153,13 +182,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     endpointParams:
                                       additionalProperties:
@@ -248,13 +282,18 @@ spec:
                           description: (String, Sensitive)
                           properties:
                             key:
+                              description: The key to select.
                               type: string
                             name:
                               description: Name of the secret.
                               type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
                           required:
                           - key
                           - name
+                          - namespace
                           type: object
                         opsgenieApiUrl:
                           description: (String)
@@ -271,13 +310,18 @@ spec:
                           description: (String, Sensitive)
                           properties:
                             key:
+                              description: The key to select.
                               type: string
                             name:
                               description: Name of the secret.
                               type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
                           required:
                           - key
                           - name
+                          - namespace
                           type: object
                         smtpAuthIdentity:
                           description: |-
@@ -290,13 +334,18 @@ spec:
                             SMTP Auth using LOGIN and PLAIN.
                           properties:
                             key:
+                              description: The key to select.
                               type: string
                             name:
                               description: Name of the secret.
                               type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
                           required:
                           - key
                           - name
+                          - namespace
                           type: object
                         smtpAuthSecretSecretRef:
                           description: |-
@@ -304,13 +353,18 @@ spec:
                             SMTP Auth using CRAM-MD5.
                           properties:
                             key:
+                              description: The key to select.
                               type: string
                             name:
                               description: Name of the secret.
                               type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
                           required:
                           - key
                           - name
+                          - namespace
                           type: object
                         smtpAuthUsername:
                           description: |-
@@ -344,13 +398,18 @@ spec:
                           description: (String, Sensitive)
                           properties:
                             key:
+                              description: The key to select.
                               type: string
                             name:
                               description: Name of the secret.
                               type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
                           required:
                           - key
                           - name
+                          - namespace
                           type: object
                         victoropsApiUrl:
                           description: (String)
@@ -365,13 +424,18 @@ spec:
                           description: (String, Sensitive)
                           properties:
                             key:
+                              description: The key to select.
                               type: string
                             name:
                               description: Name of the secret.
                               type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
                           required:
                           - key
                           - name
+                          - namespace
                           type: object
                         wechatApiUrl:
                           description: (String)
@@ -440,13 +504,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -465,13 +534,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -482,13 +556,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -513,13 +592,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -641,13 +725,18 @@ spec:
                                   SMTP authentication password.
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               authSecretSecretRef:
                                 description: |-
@@ -655,13 +744,18 @@ spec:
                                   SMTP authentication secret.
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               authUsername:
                                 description: |-
@@ -768,13 +862,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -793,13 +892,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -810,13 +914,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -841,13 +950,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -979,13 +1093,18 @@ spec:
                                   The API key to use when talking to the OpsGenie API.
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               apiUrl:
                                 description: |-
@@ -1028,13 +1147,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -1053,13 +1177,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -1070,13 +1199,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -1101,13 +1235,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -1312,13 +1451,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -1337,13 +1481,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -1354,13 +1503,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -1385,13 +1539,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -1514,13 +1673,18 @@ spec:
                                   The PagerDuty integration key (when using PagerDuty integration type `Events API v2`).
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               sendResolved:
                                 description: |-
@@ -1533,13 +1697,18 @@ spec:
                                   The PagerDuty integration key (when using PagerDuty integration type `Prometheus`).
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               severity:
                                 description: |-
@@ -1583,13 +1752,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -1608,13 +1782,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -1625,13 +1804,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -1656,13 +1840,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -1903,13 +2092,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -1928,13 +2122,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -1945,13 +2144,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -1976,13 +2180,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -2147,13 +2356,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -2172,13 +2386,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -2189,13 +2408,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -2220,13 +2444,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -2336,13 +2565,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     profile:
                                       description: |-
@@ -2363,13 +2597,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                   type: object
                                 type: array
@@ -2405,13 +2644,18 @@ spec:
                                   Telegram bot token
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               chatId:
                                 description: |-
@@ -2441,13 +2685,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -2466,13 +2715,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -2483,13 +2737,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -2514,13 +2773,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -2632,13 +2896,18 @@ spec:
                                   The API key to use when talking to the VictorOps API.
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               apiUrl:
                                 description: |-
@@ -2674,13 +2943,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -2699,13 +2973,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -2716,13 +2995,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -2747,13 +3031,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -2892,13 +3181,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -2917,13 +3211,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -2934,13 +3233,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -2965,13 +3269,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -3095,13 +3404,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -3120,13 +3434,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -3137,13 +3456,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -3168,13 +3492,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -3289,13 +3618,18 @@ spec:
                                   The API key to use when talking to the WeChat API.
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               apiUrl:
                                 description: |-
@@ -3325,13 +3659,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -3350,13 +3689,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -3367,13 +3711,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -3398,13 +3747,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -3884,13 +4238,18 @@ spec:
                                         Sets the credentials.
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     type:
                                       description: |-
@@ -3909,13 +4268,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     username:
                                       description: (String)
@@ -3926,13 +4290,18 @@ spec:
                                 description: (String, Sensitive)
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               enableHttp2:
                                 description: |-
@@ -3957,13 +4326,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     endpointParams:
                                       additionalProperties:
@@ -4052,13 +4426,18 @@ spec:
                           description: (String, Sensitive)
                           properties:
                             key:
+                              description: The key to select.
                               type: string
                             name:
                               description: Name of the secret.
                               type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
                           required:
                           - key
                           - name
+                          - namespace
                           type: object
                         opsgenieApiUrl:
                           description: (String)
@@ -4075,13 +4454,18 @@ spec:
                           description: (String, Sensitive)
                           properties:
                             key:
+                              description: The key to select.
                               type: string
                             name:
                               description: Name of the secret.
                               type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
                           required:
                           - key
                           - name
+                          - namespace
                           type: object
                         smtpAuthIdentity:
                           description: |-
@@ -4094,13 +4478,18 @@ spec:
                             SMTP Auth using LOGIN and PLAIN.
                           properties:
                             key:
+                              description: The key to select.
                               type: string
                             name:
                               description: Name of the secret.
                               type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
                           required:
                           - key
                           - name
+                          - namespace
                           type: object
                         smtpAuthSecretSecretRef:
                           description: |-
@@ -4108,13 +4497,18 @@ spec:
                             SMTP Auth using CRAM-MD5.
                           properties:
                             key:
+                              description: The key to select.
                               type: string
                             name:
                               description: Name of the secret.
                               type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
                           required:
                           - key
                           - name
+                          - namespace
                           type: object
                         smtpAuthUsername:
                           description: |-
@@ -4148,13 +4542,18 @@ spec:
                           description: (String, Sensitive)
                           properties:
                             key:
+                              description: The key to select.
                               type: string
                             name:
                               description: Name of the secret.
                               type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
                           required:
                           - key
                           - name
+                          - namespace
                           type: object
                         victoropsApiUrl:
                           description: (String)
@@ -4169,13 +4568,18 @@ spec:
                           description: (String, Sensitive)
                           properties:
                             key:
+                              description: The key to select.
                               type: string
                             name:
                               description: Name of the secret.
                               type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
                           required:
                           - key
                           - name
+                          - namespace
                           type: object
                         wechatApiUrl:
                           description: (String)
@@ -4244,13 +4648,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -4269,13 +4678,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -4286,13 +4700,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -4317,13 +4736,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -4445,13 +4869,18 @@ spec:
                                   SMTP authentication password.
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               authSecretSecretRef:
                                 description: |-
@@ -4459,13 +4888,18 @@ spec:
                                   SMTP authentication secret.
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               authUsername:
                                 description: |-
@@ -4572,13 +5006,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -4597,13 +5036,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -4614,13 +5058,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -4645,13 +5094,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -4783,13 +5237,18 @@ spec:
                                   The API key to use when talking to the OpsGenie API.
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               apiUrl:
                                 description: |-
@@ -4832,13 +5291,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -4857,13 +5321,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -4874,13 +5343,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -4905,13 +5379,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -5116,13 +5595,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -5141,13 +5625,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -5158,13 +5647,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -5189,13 +5683,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -5318,13 +5817,18 @@ spec:
                                   The PagerDuty integration key (when using PagerDuty integration type `Events API v2`).
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               sendResolved:
                                 description: |-
@@ -5337,13 +5841,18 @@ spec:
                                   The PagerDuty integration key (when using PagerDuty integration type `Prometheus`).
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               severity:
                                 description: |-
@@ -5387,13 +5896,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -5412,13 +5926,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -5429,13 +5948,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -5460,13 +5984,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -5707,13 +6236,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -5732,13 +6266,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -5749,13 +6288,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -5780,13 +6324,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -5951,13 +6500,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -5976,13 +6530,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -5993,13 +6552,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -6024,13 +6588,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -6140,13 +6709,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     profile:
                                       description: |-
@@ -6167,13 +6741,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                   type: object
                                 type: array
@@ -6209,13 +6788,18 @@ spec:
                                   Telegram bot token
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               chatId:
                                 description: |-
@@ -6245,13 +6829,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -6270,13 +6859,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -6287,13 +6881,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -6318,13 +6917,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -6436,13 +7040,18 @@ spec:
                                   The API key to use when talking to the VictorOps API.
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               apiUrl:
                                 description: |-
@@ -6478,13 +7087,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -6503,13 +7117,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -6520,13 +7139,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -6551,13 +7175,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -6696,13 +7325,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -6721,13 +7355,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -6738,13 +7377,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -6769,13 +7413,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -6899,13 +7548,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -6924,13 +7578,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -6941,13 +7600,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -6972,13 +7636,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -7093,13 +7762,18 @@ spec:
                                   The API key to use when talking to the WeChat API.
                                 properties:
                                   key:
+                                    description: The key to select.
                                     type: string
                                   name:
                                     description: Name of the secret.
                                     type: string
+                                  namespace:
+                                    description: Namespace of the secret.
+                                    type: string
                                 required:
                                 - key
                                 - name
+                                - namespace
                                 type: object
                               apiUrl:
                                 description: |-
@@ -7129,13 +7803,18 @@ spec:
                                               Sets the credentials.
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           type:
                                             description: |-
@@ -7154,13 +7833,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           username:
                                             description: (String)
@@ -7171,13 +7855,18 @@ spec:
                                       description: (String, Sensitive)
                                       properties:
                                         key:
+                                          description: The key to select.
                                           type: string
                                         name:
                                           description: Name of the secret.
                                           type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
                                       required:
                                       - key
                                       - name
+                                      - namespace
                                       type: object
                                     enableHttp2:
                                       description: |-
@@ -7202,13 +7891,18 @@ spec:
                                             description: (String, Sensitive)
                                             properties:
                                               key:
+                                                description: The key to select.
                                                 type: string
                                               name:
                                                 description: Name of the secret.
                                                 type: string
+                                              namespace:
+                                                description: Namespace of the secret.
+                                                type: string
                                             required:
                                             - key
                                             - name
+                                            - namespace
                                             type: object
                                           endpointParams:
                                             additionalProperties:
@@ -7661,6 +8355,10 @@ spec:
                   through a Crossplane feature flag.
                   ManagementPolicies specify the array of actions Crossplane is allowed to
                   take on the managed and external resources.
+                  This field is planned to replace the DeletionPolicy field in a future
+                  release. Currently, both could be set independently and non-default
+                  values would be honored if the feature flag is enabled. If both are
+                  custom, the DeletionPolicy field will be ignored.
                   See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
                   and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
                 items:
@@ -7678,21 +8376,41 @@ spec:
                 type: array
               providerConfigRef:
                 default:
-                  kind: ClusterProviderConfig
                   name: default
                 description: |-
                   ProviderConfigReference specifies how the provider that will be used to
                   create, observe, update, and delete this managed resource should be
                   configured.
                 properties:
-                  kind:
-                    description: Kind of the referenced object.
-                    type: string
                   name:
                     description: Name of the referenced object.
                     type: string
+                  policy:
+                    description: Policies for referencing.
+                    properties:
+                      resolution:
+                        default: Required
+                        description: |-
+                          Resolution specifies whether resolution of this reference is required.
+                          The default is 'Required', which means the reconcile will fail if the
+                          reference cannot be resolved. 'Optional' means this reference will be
+                          a no-op if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        description: |-
+                          Resolve specifies when this reference should be resolved. The default
+                          is 'IfNotPresent', which will attempt to resolve the reference only when
+                          the corresponding field is not present. Use 'Always' to resolve the
+                          reference on every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
                 required:
-                - kind
                 - name
                 type: object
               writeConnectionSecretToRef:
@@ -7705,8 +8423,12 @@ spec:
                   name:
                     description: Name of the secret.
                     type: string
+                  namespace:
+                    description: Namespace of the secret.
+                    type: string
                 required:
                 - name
+                - namespace
                 type: object
             required:
             - forProvider

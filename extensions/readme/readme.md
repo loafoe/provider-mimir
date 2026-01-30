@@ -12,7 +12,7 @@ kind: Provider
 metadata:
   name: provider-mimir
 spec:
-  package: xpkg.upbound.io/loafoe/provider-mimir:v0.2.2
+  package: xpkg.upbound.io/loafoe/provider-mimir:v0.9.0
 ```
 
 ## Configuration

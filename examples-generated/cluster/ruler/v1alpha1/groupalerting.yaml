@@ -1,4 +1,4 @@
-apiVersion: ruler.mimir.dip.io/v1alpha1
+apiVersion: ruler.mimir.crossplane.io/v1alpha1
 kind: GroupAlerting
 metadata:
   annotations:

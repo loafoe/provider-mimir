@@ -4,19 +4,19 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-  name: providerconfigs.mimir.m.dip.io
+  name: clusterproviderconfigs.mimir.m.crossplane.io
 spec:
-  group: mimir.m.dip.io
+  group: mimir.m.crossplane.io
   names:
     categories:
     - crossplane
     - provider
     - mimir
-    kind: ProviderConfig
-    listKind: ProviderConfigList
-    plural: providerconfigs
-    singular: providerconfig
-  scope: Namespaced
+    kind: ClusterProviderConfig
+    listKind: ClusterProviderConfigList
+    plural: clusterproviderconfigs
+    singular: clusterproviderconfig
+  scope: Cluster
   versions:
   - additionalPrinterColumns:
     - jsonPath: .metadata.creationTimestamp
@@ -29,7 +29,7 @@ spec:
     name: v1beta1
     schema:
       openAPIV3Schema:
-        description: A ProviderConfig configures a Mimir provider.
+        description: A ClusterProviderConfig configures a Mimir provider.
         properties:
           apiVersion:
             description: |-

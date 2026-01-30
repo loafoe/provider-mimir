@@ -1,4 +1,4 @@
-apiVersion: ruler.mimir.m.dip.io/v1alpha1
+apiVersion: ruler.mimir.m.crossplane.io/v1alpha1
 kind: GroupRecording
 metadata:
   name: example-recording-rules-ns

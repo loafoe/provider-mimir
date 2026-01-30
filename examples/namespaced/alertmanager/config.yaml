@@ -1,4 +1,4 @@
-apiVersion: alertmanager.mimir.m.dip.io/v1alpha1
+apiVersion: alertmanager.mimir.m.crossplane.io/v1alpha1
 kind: Config
 metadata:
   name: example-alertmanager-config-ns

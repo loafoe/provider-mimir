@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-  name: providerconfigusages.mimir.dip.io
+  name: providerconfigusages.mimir.crossplane.io
 spec:
-  group: mimir.dip.io
+  group: mimir.crossplane.io
   names:
     categories:
     - crossplane
