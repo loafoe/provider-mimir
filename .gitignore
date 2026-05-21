@@ -5,7 +5,11 @@ cover.out
 /vendor
 /.vendor-new
 .DS_Store
+/provider
 
 # ignore IDE folders
 .vscode/
 .idea/
+
+# LLM
+.claude/

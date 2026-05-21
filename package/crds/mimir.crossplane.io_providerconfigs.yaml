@@ -16,17 +16,16 @@ spec:
     listKind: ProviderConfigList
     plural: providerconfigs
     singular: providerconfig
-  scope: Cluster
+  scope: Namespaced
   versions:
   - additionalPrinterColumns:
     - jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
-    - jsonPath: .spec.credentials.secretRef.name
-      name: SECRET-NAME
-      priority: 1
+    - jsonPath: .spec.uri
+      name: URI
       type: string
-    name: v1beta1
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: A ProviderConfig configures a Mimir provider.
@@ -49,37 +48,126 @@ spec:
           metadata:
             type: object
           spec:
-            description: A ProviderConfigSpec defines the desired state of a ProviderConfig.
+            description: ProviderConfigSpec defines the configuration for connecting
+              to Mimir.
             properties:
+              alertmanagerUri:
+                description: |-
+                  AlertmanagerURI is the URL of the Mimir alertmanager component.
+                  If not specified, defaults to URI.
+                type: string
               credentials:
-                description: Credentials required to authenticate to this provider.
+                description: Credentials contains authentication configuration for
+                  Mimir.
                 properties:
-                  env:
+                  authType:
+                    description: AuthType specifies the type of authentication to
+                      use.
+                    enum:
+                    - basic
+                    - token
+                    type: string
+                  basicAuth:
                     description: |-
-                      Env is a reference to an environment variable that contains credentials
-                      that must be used to connect to the provider.
+                      BasicAuth contains credentials for HTTP Basic Authentication.
+                      Required when authType is "basic".
                     properties:
-                      name:
-                        description: Name is the name of an environment variable.
-                        type: string
+                      passwordSecretRef:
+                        description: PasswordSecretRef is a reference to a secret
+                          key containing the password.
+                        properties:
+                          key:
+                            description: The key to select.
+                            type: string
+                          name:
+                            description: Name of the secret.
+                            type: string
+                          namespace:
+                            description: Namespace of the secret.
+                            type: string
+                        required:
+                        - key
+                        - name
+                        - namespace
+                        type: object
+                      usernameSecretRef:
+                        description: UsernameSecretRef is a reference to a secret
+                          key containing the username.
+                        properties:
+                          key:
+                            description: The key to select.
+                            type: string
+                          name:
+                            description: Name of the secret.
+                            type: string
+                          namespace:
+                            description: Namespace of the secret.
+                            type: string
+                        required:
+                        - key
+                        - name
+                        - namespace
+                        type: object
                     required:
-                    - name
+                    - passwordSecretRef
+                    - usernameSecretRef
                     type: object
-                  fs:
+                  source:
+                    default: Secret
+                    description: Source of the provider credentials.
+                    enum:
+                    - None
+                    - Secret
+                    type: string
+                  tokenAuth:
                     description: |-
-                      Fs is a reference to a filesystem location that contains credentials that
-                      must be used to connect to the provider.
+                      TokenAuth contains credentials for token-based authentication.
+                      Required when authType is "token".
                     properties:
-                      path:
-                        description: Path is a filesystem path.
-                        type: string
+                      tokenSecretRef:
+                        description: TokenSecretRef is a reference to a secret key
+                          containing the bearer token.
+                        properties:
+                          key:
+                            description: The key to select.
+                            type: string
+                          name:
+                            description: Name of the secret.
+                            type: string
+                          namespace:
+                            description: Namespace of the secret.
+                            type: string
+                        required:
+                        - key
+                        - name
+                        - namespace
+                        type: object
                     required:
-                    - path
+                    - tokenSecretRef
                     type: object
-                  secretRef:
-                    description: |-
-                      A SecretRef is a reference to a secret key that contains the credentials
-                      that must be used to connect to the provider.
+                required:
+                - authType
+                - source
+                type: object
+              headers:
+                additionalProperties:
+                  type: string
+                description: Headers are additional headers to send with requests.
+                type: object
+              orgId:
+                description: OrgID is the tenant/organization ID for multi-tenancy.
+                type: string
+              rulerUri:
+                description: |-
+                  RulerURI is the URL of the Mimir ruler component.
+                  If not specified, defaults to URI.
+                type: string
+              tls:
+                description: TLS contains TLS configuration for connecting to Mimir.
+                properties:
+                  caSecretRef:
+                    description: CASecretRef is a reference to a secret key containing
+                      the CA certificate.
                     properties:
                       key:
                         description: The key to select.
@@ -95,23 +183,55 @@ spec:
                     - name
                     - namespace
                     type: object
-                  source:
-                    description: Source of the provider credentials.
-                    enum:
-                    - None
-                    - Secret
-                    - InjectedIdentity
-                    - Environment
-                    - Filesystem
-                    type: string
-                required:
-                - source
+                  certSecretRef:
+                    description: CertSecretRef is a reference to a secret key containing
+                      the client certificate.
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                  insecure:
+                    description: Insecure skips TLS certificate verification.
+                    type: boolean
+                  keySecretRef:
+                    description: KeySecretRef is a reference to a secret key containing
+                      the client key.
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                 type: object
+              uri:
+                description: URI is the base URL of the Mimir instance.
+                type: string
             required:
             - credentials
+            - uri
             type: object
           status:
-            description: A ProviderConfigStatus reflects the observed state of a ProviderConfig.
+            description: A ProviderConfigStatus defines the status of a Provider.
             properties:
               conditions:
                 description: Conditions of the resource.
