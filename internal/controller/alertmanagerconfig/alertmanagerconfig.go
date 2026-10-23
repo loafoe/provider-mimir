@@ -34,27 +34,27 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	alertmanagerv1alpha1 "github.com/loafoe/provider-mimir/apis/alertmanager/v1alpha1"
-	apisv1alpha1 "github.com/loafoe/provider-mimir/apis/v1alpha1"
+	alertmanagerv1 "github.com/loafoe/provider-mimir/apis/alertmanager/v1"
+	apisv1 "github.com/loafoe/provider-mimir/apis/v1"
 	"github.com/loafoe/provider-mimir/internal/clients/mimir"
 )
 
 const (
-	errNotConfig       = "managed resource is not an AlertmanagerConfig custom resource"
-	errTrackPCUsage    = "cannot track ProviderConfig usage"
-	errGetPC           = "cannot get ProviderConfig"
-	errNewClient       = "cannot create Mimir client"
-	errGetSecret       = "cannot get secret"
+	errNotConfig    = "managed resource is not an AlertmanagerConfig custom resource"
+	errTrackPCUsage = "cannot track ProviderConfig usage"
+	errGetPC        = "cannot get ProviderConfig"
+	errNewClient    = "cannot create Mimir client"
+	errGetSecret    = "cannot get secret"
 )
 
 // Setup adds a controller that reconciles AlertmanagerConfig managed resources.
 func Setup(mgr ctrl.Manager, o controller.Options) error {
-	name := managed.ControllerName(alertmanagerv1alpha1.ConfigGroupKind)
+	name := managed.ControllerName(alertmanagerv1.ConfigGroupKind)
 
 	opts := []managed.ReconcilerOption{
 		managed.WithExternalConnector(&connector{
 			kube:  mgr.GetClient(),
-			usage: resource.NewProviderConfigUsageTracker(mgr.GetClient(), &apisv1alpha1.ProviderConfigUsage{}),
+			usage: resource.NewProviderConfigUsageTracker(mgr.GetClient(), &apisv1.ProviderConfigUsage{}),
 		}),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithPollInterval(o.PollInterval),
@@ -72,20 +72,20 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 	}
 	if o.MetricOptions != nil && o.MetricOptions.MRStateMetrics != nil {
 		stateMetricsRecorder := statemetrics.NewMRStateRecorder(
-			mgr.GetClient(), o.Logger, o.MetricOptions.MRStateMetrics, &alertmanagerv1alpha1.ConfigList{}, o.MetricOptions.PollStateMetricInterval,
+			mgr.GetClient(), o.Logger, o.MetricOptions.MRStateMetrics, &alertmanagerv1.ConfigList{}, o.MetricOptions.PollStateMetricInterval,
 		)
 		if err := mgr.Add(stateMetricsRecorder); err != nil {
 			return errors.Wrap(err, "cannot register MR state metrics recorder")
 		}
 	}
 
-	r := managed.NewReconciler(mgr, resource.ManagedKind(alertmanagerv1alpha1.ConfigGroupVersionKind), opts...)
+	r := managed.NewReconciler(mgr, resource.ManagedKind(alertmanagerv1.ConfigGroupVersionKind), opts...)
 
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
 		WithOptions(o.ForControllerRuntime()).
 		WithEventFilter(resource.DesiredStateChanged()).
-		For(&alertmanagerv1alpha1.Config{}).
+		For(&alertmanagerv1.Config{}).
 		Complete(ratelimiter.NewReconciler(name, r, o.GlobalRateLimiter))
 }
 
@@ -95,7 +95,7 @@ type connector struct {
 }
 
 func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.ExternalClient, error) {
-	cr, ok := mg.(*alertmanagerv1alpha1.Config)
+	cr, ok := mg.(*alertmanagerv1.Config)
 	if !ok {
 		return nil, errors.New(errNotConfig)
 	}
@@ -107,7 +107,7 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 	m := mg.(resource.ModernManaged)
 	ref := m.GetProviderConfigReference()
 
-	pc := &apisv1alpha1.ProviderConfig{}
+	pc := &apisv1.ProviderConfig{}
 	if err := c.kube.Get(ctx, types.NamespacedName{Name: ref.Name, Namespace: m.GetNamespace()}, pc); err != nil {
 		return nil, errors.Wrap(err, errGetPC)
 	}
@@ -125,7 +125,7 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 	return &external{client: mimirClient, defaultOrgID: pc.Spec.OrgID}, nil
 }
 
-func (c *connector) buildClientConfig(ctx context.Context, namespace string, pc *apisv1alpha1.ProviderConfig) (mimir.Config, error) {
+func (c *connector) buildClientConfig(ctx context.Context, namespace string, pc *apisv1.ProviderConfig) (mimir.Config, error) {
 	cfg := mimir.Config{
 		URI:             pc.Spec.URI,
 		RulerURI:        pc.Spec.RulerURI,
@@ -135,7 +135,7 @@ func (c *connector) buildClientConfig(ctx context.Context, namespace string, pc 
 	}
 
 	switch pc.Spec.Credentials.AuthType {
-	case apisv1alpha1.AuthTypeBasic:
+	case apisv1.AuthTypeBasic:
 		if pc.Spec.Credentials.BasicAuth == nil {
 			return cfg, errors.New("basicAuth is required when authType is basic")
 		}
@@ -149,7 +149,7 @@ func (c *connector) buildClientConfig(ctx context.Context, namespace string, pc 
 		}
 		cfg.Username = username
 		cfg.Password = password
-	case apisv1alpha1.AuthTypeToken:
+	case apisv1.AuthTypeToken:
 		if pc.Spec.Credentials.TokenAuth == nil {
 			return cfg, errors.New("tokenAuth is required when authType is token")
 		}
@@ -208,7 +208,7 @@ type external struct {
 }
 
 func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.ExternalObservation, error) {
-	cr, ok := mg.(*alertmanagerv1alpha1.Config)
+	cr, ok := mg.(*alertmanagerv1.Config)
 	if !ok {
 		return managed.ExternalObservation{}, errors.New(errNotConfig)
 	}
@@ -238,7 +238,7 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 }
 
 func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.ExternalCreation, error) {
-	cr, ok := mg.(*alertmanagerv1alpha1.Config)
+	cr, ok := mg.(*alertmanagerv1.Config)
 	if !ok {
 		return managed.ExternalCreation{}, errors.New(errNotConfig)
 	}
@@ -259,7 +259,7 @@ func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 }
 
 func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.ExternalUpdate, error) {
-	cr, ok := mg.(*alertmanagerv1alpha1.Config)
+	cr, ok := mg.(*alertmanagerv1.Config)
 	if !ok {
 		return managed.ExternalUpdate{}, errors.New(errNotConfig)
 	}
@@ -275,7 +275,7 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 }
 
 func (e *external) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
-	cr, ok := mg.(*alertmanagerv1alpha1.Config)
+	cr, ok := mg.(*alertmanagerv1.Config)
 	if !ok {
 		return managed.ExternalDelete{}, errors.New(errNotConfig)
 	}
@@ -295,14 +295,14 @@ func (e *external) Disconnect(ctx context.Context) error {
 	return nil
 }
 
-func (e *external) getOrgID(cr *alertmanagerv1alpha1.Config) string {
+func (e *external) getOrgID(cr *alertmanagerv1.Config) string {
 	if cr.Spec.ForProvider.OrgID != nil {
 		return *cr.Spec.ForProvider.OrgID
 	}
 	return e.defaultOrgID
 }
 
-func (e *external) buildAlertmanagerConfig(cr *alertmanagerv1alpha1.Config) *mimir.AlertmanagerUserConfig {
+func (e *external) buildAlertmanagerConfig(cr *alertmanagerv1.Config) *mimir.AlertmanagerUserConfig {
 	fp := cr.Spec.ForProvider
 
 	alertConfig := &mimir.AlertmanagerConfig{
@@ -311,14 +311,14 @@ func (e *external) buildAlertmanagerConfig(cr *alertmanagerv1alpha1.Config) *mim
 
 	if fp.Global != nil {
 		alertConfig.Global = &mimir.GlobalConfig{
-			ResolveTimeout: ptrToStr(fp.Global.ResolveTimeout),
-			SMTPSmarthost:  ptrToStr(fp.Global.SMTPSmarthost),
-			SMTPFrom:       ptrToStr(fp.Global.SMTPFrom),
+			ResolveTimeout:   ptrToStr(fp.Global.ResolveTimeout),
+			SMTPSmarthost:    ptrToStr(fp.Global.SMTPSmarthost),
+			SMTPFrom:         ptrToStr(fp.Global.SMTPFrom),
 			SMTPAuthUsername: ptrToStr(fp.Global.SMTPAuthUsername),
 			SMTPAuthIdentity: ptrToStr(fp.Global.SMTPAuthIdentity),
-			SMTPRequireTLS: fp.Global.SMTPRequireTLS,
-			PagerdutyURL:  ptrToStr(fp.Global.PagerdutyURL),
-			OpsGenieAPIURL: ptrToStr(fp.Global.OpsGenieAPIURL),
+			SMTPRequireTLS:   fp.Global.SMTPRequireTLS,
+			PagerdutyURL:     ptrToStr(fp.Global.PagerdutyURL),
+			OpsGenieAPIURL:   ptrToStr(fp.Global.OpsGenieAPIURL),
 		}
 	}
 
@@ -394,7 +394,7 @@ func (e *external) buildAlertmanagerConfig(cr *alertmanagerv1alpha1.Config) *mim
 	}
 }
 
-func (e *external) buildRoute(rc *alertmanagerv1alpha1.RouteConfig) *mimir.Route {
+func (e *external) buildRoute(rc *alertmanagerv1.RouteConfig) *mimir.Route {
 	if rc == nil {
 		return nil
 	}

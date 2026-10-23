@@ -35,8 +35,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	rulerv1alpha1 "github.com/loafoe/provider-mimir/apis/ruler/v1alpha1"
-	apisv1alpha1 "github.com/loafoe/provider-mimir/apis/v1alpha1"
+	rulerv1 "github.com/loafoe/provider-mimir/apis/ruler/v1"
+	apisv1 "github.com/loafoe/provider-mimir/apis/v1"
 	"github.com/loafoe/provider-mimir/internal/clients/mimir"
 )
 
@@ -62,12 +62,12 @@ func parseExternalName(externalName string) (string, string, error) {
 
 // Setup adds a controller that reconciles RuleGroupAlerting managed resources.
 func Setup(mgr ctrl.Manager, o controller.Options) error {
-	name := managed.ControllerName(rulerv1alpha1.RuleGroupAlertingGroupKind)
+	name := managed.ControllerName(rulerv1.RuleGroupAlertingGroupKind)
 
 	opts := []managed.ReconcilerOption{
 		managed.WithExternalConnector(&connector{
 			kube:  mgr.GetClient(),
-			usage: resource.NewProviderConfigUsageTracker(mgr.GetClient(), &apisv1alpha1.ProviderConfigUsage{}),
+			usage: resource.NewProviderConfigUsageTracker(mgr.GetClient(), &apisv1.ProviderConfigUsage{}),
 		}),
 		managed.WithLogger(o.Logger.WithValues("controller", name)),
 		managed.WithPollInterval(o.PollInterval),
@@ -85,20 +85,20 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 	}
 	if o.MetricOptions != nil && o.MetricOptions.MRStateMetrics != nil {
 		stateMetricsRecorder := statemetrics.NewMRStateRecorder(
-			mgr.GetClient(), o.Logger, o.MetricOptions.MRStateMetrics, &rulerv1alpha1.RuleGroupAlertingList{}, o.MetricOptions.PollStateMetricInterval,
+			mgr.GetClient(), o.Logger, o.MetricOptions.MRStateMetrics, &rulerv1.RuleGroupAlertingList{}, o.MetricOptions.PollStateMetricInterval,
 		)
 		if err := mgr.Add(stateMetricsRecorder); err != nil {
 			return errors.Wrap(err, "cannot register MR state metrics recorder")
 		}
 	}
 
-	r := managed.NewReconciler(mgr, resource.ManagedKind(rulerv1alpha1.RuleGroupAlertingGroupVersionKind), opts...)
+	r := managed.NewReconciler(mgr, resource.ManagedKind(rulerv1.RuleGroupAlertingGroupVersionKind), opts...)
 
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
 		WithOptions(o.ForControllerRuntime()).
 		WithEventFilter(resource.DesiredStateChanged()).
-		For(&rulerv1alpha1.RuleGroupAlerting{}).
+		For(&rulerv1.RuleGroupAlerting{}).
 		Complete(ratelimiter.NewReconciler(name, r, o.GlobalRateLimiter))
 }
 
@@ -108,7 +108,7 @@ type connector struct {
 }
 
 func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.ExternalClient, error) {
-	cr, ok := mg.(*rulerv1alpha1.RuleGroupAlerting)
+	cr, ok := mg.(*rulerv1.RuleGroupAlerting)
 	if !ok {
 		return nil, errors.New(errNotRuleGroupAlerting)
 	}
@@ -120,7 +120,7 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 	m := mg.(resource.ModernManaged)
 	ref := m.GetProviderConfigReference()
 
-	pc := &apisv1alpha1.ProviderConfig{}
+	pc := &apisv1.ProviderConfig{}
 	if err := c.kube.Get(ctx, types.NamespacedName{Name: ref.Name, Namespace: m.GetNamespace()}, pc); err != nil {
 		return nil, errors.Wrap(err, errGetPC)
 	}
@@ -138,7 +138,7 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 	return &external{client: mimirClient, defaultOrgID: pc.Spec.OrgID}, nil
 }
 
-func buildClientConfig(ctx context.Context, kube client.Client, namespace string, pc *apisv1alpha1.ProviderConfig) (mimir.Config, error) {
+func buildClientConfig(ctx context.Context, kube client.Client, namespace string, pc *apisv1.ProviderConfig) (mimir.Config, error) {
 	cfg := mimir.Config{
 		URI:             pc.Spec.URI,
 		RulerURI:        pc.Spec.RulerURI,
@@ -148,7 +148,7 @@ func buildClientConfig(ctx context.Context, kube client.Client, namespace string
 	}
 
 	switch pc.Spec.Credentials.AuthType {
-	case apisv1alpha1.AuthTypeBasic:
+	case apisv1.AuthTypeBasic:
 		if pc.Spec.Credentials.BasicAuth == nil {
 			return cfg, errors.New("basicAuth is required when authType is basic")
 		}
@@ -162,7 +162,7 @@ func buildClientConfig(ctx context.Context, kube client.Client, namespace string
 		}
 		cfg.Username = username
 		cfg.Password = password
-	case apisv1alpha1.AuthTypeToken:
+	case apisv1.AuthTypeToken:
 		if pc.Spec.Credentials.TokenAuth == nil {
 			return cfg, errors.New("tokenAuth is required when authType is token")
 		}
@@ -221,7 +221,7 @@ type external struct {
 }
 
 func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.ExternalObservation, error) {
-	cr, ok := mg.(*rulerv1alpha1.RuleGroupAlerting)
+	cr, ok := mg.(*rulerv1.RuleGroupAlerting)
 	if !ok {
 		return managed.ExternalObservation{}, errors.New(errNotRuleGroupAlerting)
 	}
@@ -262,7 +262,7 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 	}, nil
 }
 
-func (e *external) isUpToDate(cr *rulerv1alpha1.RuleGroupAlerting, rg *mimir.RuleGroup) bool {
+func (e *external) isUpToDate(cr *rulerv1.RuleGroupAlerting, rg *mimir.RuleGroup) bool {
 	fp := cr.Spec.ForProvider
 
 	if fp.Name != rg.Name {
@@ -281,7 +281,7 @@ func (e *external) isUpToDate(cr *rulerv1alpha1.RuleGroupAlerting, rg *mimir.Rul
 }
 
 func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.ExternalCreation, error) {
-	cr, ok := mg.(*rulerv1alpha1.RuleGroupAlerting)
+	cr, ok := mg.(*rulerv1.RuleGroupAlerting)
 	if !ok {
 		return managed.ExternalCreation{}, errors.New(errNotRuleGroupAlerting)
 	}
@@ -310,7 +310,7 @@ func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 }
 
 func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.ExternalUpdate, error) {
-	cr, ok := mg.(*rulerv1alpha1.RuleGroupAlerting)
+	cr, ok := mg.(*rulerv1.RuleGroupAlerting)
 	if !ok {
 		return managed.ExternalUpdate{}, errors.New(errNotRuleGroupAlerting)
 	}
@@ -332,7 +332,7 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 }
 
 func (e *external) Delete(ctx context.Context, mg resource.Managed) (managed.ExternalDelete, error) {
-	cr, ok := mg.(*rulerv1alpha1.RuleGroupAlerting)
+	cr, ok := mg.(*rulerv1.RuleGroupAlerting)
 	if !ok {
 		return managed.ExternalDelete{}, errors.New(errNotRuleGroupAlerting)
 	}
@@ -357,14 +357,14 @@ func (e *external) Disconnect(ctx context.Context) error {
 	return nil
 }
 
-func (e *external) getOrgID(cr *rulerv1alpha1.RuleGroupAlerting) string {
+func (e *external) getOrgID(cr *rulerv1.RuleGroupAlerting) string {
 	if cr.Spec.ForProvider.OrgID != nil {
 		return *cr.Spec.ForProvider.OrgID
 	}
 	return e.defaultOrgID
 }
 
-func (e *external) buildRuleGroup(cr *rulerv1alpha1.RuleGroupAlerting) *mimir.RuleGroup {
+func (e *external) buildRuleGroup(cr *rulerv1.RuleGroupAlerting) *mimir.RuleGroup {
 	fp := cr.Spec.ForProvider
 
 	rg := &mimir.RuleGroup{

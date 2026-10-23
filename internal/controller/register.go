@@ -22,6 +22,11 @@ import (
 
 	"github.com/loafoe/provider-mimir/internal/controller/alertmanagerconfig"
 	"github.com/loafoe/provider-mimir/internal/controller/config"
+	"github.com/loafoe/provider-mimir/internal/controller/grouprecording"
+	malertmanagerconfig "github.com/loafoe/provider-mimir/internal/controller/m/alertmanagerconfig"
+	mconfig "github.com/loafoe/provider-mimir/internal/controller/m/config"
+	mrulegroupalerting "github.com/loafoe/provider-mimir/internal/controller/m/rulegroupalerting"
+	mrulegrouprecording "github.com/loafoe/provider-mimir/internal/controller/m/rulegrouprecording"
 	"github.com/loafoe/provider-mimir/internal/controller/rulegroupalerting"
 	"github.com/loafoe/provider-mimir/internal/controller/rulegrouprecording"
 )
@@ -29,10 +34,17 @@ import (
 // Setup creates all Mimir controllers and adds them to the supplied manager.
 func Setup(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
+		// Cluster-scoped resources (mimir.crossplane.io)
 		config.Setup,
 		alertmanagerconfig.Setup,
 		rulegroupalerting.Setup,
 		rulegrouprecording.Setup,
+		grouprecording.Setup,
+		// Namespaced resources (mimir.m.crossplane.io)
+		mconfig.Setup,
+		malertmanagerconfig.Setup,
+		mrulegroupalerting.Setup,
+		mrulegrouprecording.Setup,
 	} {
 		if err := setup(mgr, o); err != nil {
 			return err

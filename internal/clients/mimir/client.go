@@ -228,12 +228,12 @@ type AlertmanagerUserConfig struct {
 
 // AlertmanagerConfig represents the alertmanager configuration.
 type AlertmanagerConfig struct {
-	Global            *GlobalConfig       `yaml:"global,omitempty"`
-	Route             *Route              `yaml:"route,omitempty"`
-	Receivers         []Receiver          `yaml:"receivers,omitempty"`
-	InhibitRules      []InhibitRule       `yaml:"inhibit_rules,omitempty"`
-	MuteTimeIntervals []MuteTimeInterval  `yaml:"mute_time_intervals,omitempty"`
-	Templates         []string            `yaml:"templates,omitempty"`
+	Global            *GlobalConfig      `yaml:"global,omitempty"`
+	Route             *Route             `yaml:"route,omitempty"`
+	Receivers         []Receiver         `yaml:"receivers,omitempty"`
+	InhibitRules      []InhibitRule      `yaml:"inhibit_rules,omitempty"`
+	MuteTimeIntervals []MuteTimeInterval `yaml:"mute_time_intervals,omitempty"`
+	Templates         []string           `yaml:"templates,omitempty"`
 }
 
 // GlobalConfig represents alertmanager global configuration.
@@ -303,18 +303,18 @@ type SlackConfig struct {
 
 // PagerdutyConfig represents PagerDuty notification configuration.
 type PagerdutyConfig struct {
-	ServiceKey  string `yaml:"service_key,omitempty"`
-	RoutingKey  string `yaml:"routing_key,omitempty"`
-	URL         string `yaml:"url,omitempty"`
-	Description string `yaml:"description,omitempty"`
-	Severity    string `yaml:"severity,omitempty"`
-	SendResolved bool  `yaml:"send_resolved,omitempty"`
+	ServiceKey   string `yaml:"service_key,omitempty"`
+	RoutingKey   string `yaml:"routing_key,omitempty"`
+	URL          string `yaml:"url,omitempty"`
+	Description  string `yaml:"description,omitempty"`
+	Severity     string `yaml:"severity,omitempty"`
+	SendResolved bool   `yaml:"send_resolved,omitempty"`
 }
 
 // WebhookConfig represents webhook notification configuration.
 type WebhookConfig struct {
-	URL          string `yaml:"url,omitempty"`
-	SendResolved bool   `yaml:"send_resolved,omitempty"`
+	URL          string            `yaml:"url,omitempty"`
+	SendResolved bool              `yaml:"send_resolved,omitempty"`
 	HTTPConfig   *HTTPClientConfig `yaml:"http_config,omitempty"`
 }
 
@@ -329,8 +329,8 @@ type OpsGenieConfig struct {
 
 // HTTPClientConfig represents HTTP client configuration.
 type HTTPClientConfig struct {
-	BasicAuth *BasicAuth `yaml:"basic_auth,omitempty"`
-	BearerToken string   `yaml:"bearer_token,omitempty"`
+	BasicAuth   *BasicAuth `yaml:"basic_auth,omitempty"`
+	BearerToken string     `yaml:"bearer_token,omitempty"`
 }
 
 // BasicAuth represents HTTP basic authentication.

@@ -1,0 +1,16 @@
+apiVersion: ruler.mimir.crossplane.io/v1
+kind: GroupRecording
+metadata:
+  annotations:
+    meta.upbound.io/example-id: ruler/v1/grouprecording
+  labels:
+    testing.upbound.io/example-name: test
+  name: test
+spec:
+  forProvider:
+    interval: 6h
+    namespace: namespace1
+    queryOffset: 5m
+    rule:
+    - expr: sum by (job) (http_inprogress_requests)
+      record: job:http_inprogress_requests:sum

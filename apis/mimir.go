@@ -20,17 +20,27 @@ package apis
 import (
 	"k8s.io/apimachinery/pkg/runtime"
 
-	alertmanagerv1alpha1 "github.com/loafoe/provider-mimir/apis/alertmanager/v1alpha1"
-	rulerv1alpha1 "github.com/loafoe/provider-mimir/apis/ruler/v1alpha1"
-	v1alpha1 "github.com/loafoe/provider-mimir/apis/v1alpha1"
+	alertmanagerv1 "github.com/loafoe/provider-mimir/apis/alertmanager/v1"
+	malertmanagerv1 "github.com/loafoe/provider-mimir/apis/m/alertmanager/v1"
+	mrulerv1 "github.com/loafoe/provider-mimir/apis/m/ruler/v1"
+	mv1 "github.com/loafoe/provider-mimir/apis/m/v1"
+	rulerv1 "github.com/loafoe/provider-mimir/apis/ruler/v1"
+	v1 "github.com/loafoe/provider-mimir/apis/v1"
 )
 
 func init() {
 	// Register the types with the Scheme so the components can map objects to GroupVersionKinds and back
+	// Cluster-scoped resources (mimir.crossplane.io)
 	AddToSchemes = append(AddToSchemes,
-		v1alpha1.AddToScheme,
-		alertmanagerv1alpha1.AddToScheme,
-		rulerv1alpha1.AddToScheme,
+		v1.AddToScheme,
+		alertmanagerv1.AddToScheme,
+		rulerv1.AddToScheme,
+	)
+	// Namespaced resources (mimir.m.crossplane.io)
+	AddToSchemes = append(AddToSchemes,
+		mv1.AddToScheme,
+		malertmanagerv1.AddToScheme,
+		mrulerv1.AddToScheme,
 	)
 }
 

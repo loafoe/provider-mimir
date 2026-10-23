@@ -9,744 +9,1358 @@ spec:
   group: alertmanager.mimir.crossplane.io
   names:
     categories:
-    - crossplane
-    - managed
-    - mimir
+      - crossplane
+      - managed
+      - mimir
     kind: Config
     listKind: ConfigList
     plural: configs
     singular: config
-  scope: Namespaced
+  scope: Cluster
   versions:
-  - additionalPrinterColumns:
-    - jsonPath: .status.conditions[?(@.type=='Synced')].status
-      name: SYNCED
-      type: string
-    - jsonPath: .status.conditions[?(@.type=='Ready')].status
-      name: READY
-      type: string
-    - jsonPath: .metadata.annotations.crossplane\.io/external-name
-      name: EXTERNAL-NAME
-      type: string
-    - jsonPath: .metadata.creationTimestamp
-      name: AGE
-      type: date
-    name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        description: Config is the Schema for the AlertmanagerConfig API.
-        properties:
-          apiVersion:
-            description: |-
-              APIVersion defines the versioned schema of this representation of an object.
-              Servers should convert recognized schemas to the latest internal value, and
-              may reject unrecognized values.
-              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-            type: string
-          kind:
-            description: |-
-              Kind is a string value representing the REST resource this object represents.
-              Servers may infer this from the endpoint the client submits requests to.
-              Cannot be updated.
-              In CamelCase.
-              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-            type: string
-          metadata:
-            type: object
-          spec:
-            description: ConfigSpec defines the desired state of an AlertmanagerConfig.
-            properties:
-              forProvider:
-                description: ConfigParameters defines the desired state of an AlertmanagerConfig.
-                properties:
-                  global:
-                    description: Global contains global alertmanager configuration.
-                    properties:
-                      opsgenieApiKeySecretRef:
-                        description: OpsGenieAPIKeySecretRef is a reference to a secret
-                          containing the OpsGenie API key.
-                        properties:
-                          key:
-                            description: The key to select.
-                            type: string
-                          name:
-                            description: Name of the secret.
-                            type: string
-                          namespace:
-                            description: Namespace of the secret.
-                            type: string
-                        required:
-                        - key
-                        - name
-                        - namespace
-                        type: object
-                      opsgenieApiUrl:
-                        description: OpsGenieAPIURL is the OpsGenie API URL.
-                        type: string
-                      pagerdutyUrl:
-                        description: PagerdutyURL is the PagerDuty API URL.
-                        type: string
-                      resolveTimeout:
-                        description: ResolveTimeout is the time after which an alert
-                          is declared resolved.
-                        type: string
-                      slackApiUrlSecretRef:
-                        description: SlackAPIURLSecretRef is a reference to a secret
-                          containing the Slack API URL.
-                        properties:
-                          key:
-                            description: The key to select.
-                            type: string
-                          name:
-                            description: Name of the secret.
-                            type: string
-                          namespace:
-                            description: Namespace of the secret.
-                            type: string
-                        required:
-                        - key
-                        - name
-                        - namespace
-                        type: object
-                      smtpAuthIdentity:
-                        description: SMTPAuthIdentity is the SMTP AUTH identity.
-                        type: string
-                      smtpAuthPasswordSecretRef:
-                        description: SMTPAuthPasswordSecretRef is a reference to a
-                          secret containing the SMTP AUTH password.
-                        properties:
-                          key:
-                            description: The key to select.
-                            type: string
-                          name:
-                            description: Name of the secret.
-                            type: string
-                          namespace:
-                            description: Namespace of the secret.
-                            type: string
-                        required:
-                        - key
-                        - name
-                        - namespace
-                        type: object
-                      smtpAuthUsername:
-                        description: SMTPAuthUsername is the SMTP AUTH username.
-                        type: string
-                      smtpFrom:
-                        description: SMTPFrom is the default SMTP from address.
-                        type: string
-                      smtpRequireTls:
-                        description: SMTPRequireTLS requires TLS for SMTP connections.
-                        type: boolean
-                      smtpSmarthost:
-                        description: SMTPSmarthost is the default SMTP smarthost for
-                          notifications.
-                        type: string
-                    type: object
-                  inhibitRule:
-                    description: InhibitRules is the list of inhibition rules.
-                    items:
-                      description: InhibitRuleConfig defines an inhibition rule.
+    - additionalPrinterColumns:
+        - jsonPath: .status.conditions[?(@.type=='Synced')].status
+          name: SYNCED
+          type: string
+        - jsonPath: .status.conditions[?(@.type=='Ready')].status
+          name: READY
+          type: string
+        - jsonPath: .metadata.annotations.crossplane\.io/external-name
+          name: EXTERNAL-NAME
+          type: string
+        - jsonPath: .metadata.creationTimestamp
+          name: AGE
+          type: date
+      name: v1
+      schema:
+        openAPIV3Schema:
+          description: Config is the Schema for the AlertmanagerConfig API.
+          properties:
+            apiVersion:
+              description: |-
+                APIVersion defines the versioned schema of this representation of an object.
+                Servers should convert recognized schemas to the latest internal value, and
+                may reject unrecognized values.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+              type: string
+            kind:
+              description: |-
+                Kind is a string value representing the REST resource this object represents.
+                Servers may infer this from the endpoint the client submits requests to.
+                Cannot be updated.
+                In CamelCase.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: ConfigSpec defines the desired state of an AlertmanagerConfig.
+              properties:
+                forProvider:
+                  description: ConfigParameters defines the desired state of an AlertmanagerConfig.
+                  properties:
+                    global:
+                      description: Global contains global alertmanager configuration.
                       properties:
-                        equal:
-                          description: Equal is a list of labels that must have equal
-                            values.
-                          items:
-                            type: string
-                          type: array
-                        sourceMatchers:
-                          description: SourceMatchers is a list of matchers for source
-                            alerts.
-                          items:
-                            type: string
-                          type: array
-                        targetMatchers:
-                          description: TargetMatchers is a list of matchers for target
-                            alerts.
-                          items:
-                            type: string
-                          type: array
-                      type: object
-                    type: array
-                  orgId:
-                    description: |-
-                      OrgID is the tenant/organization ID. If not set, the Org ID defined in
-                      the provider config will be used.
-                    type: string
-                  receiver:
-                    description: Receivers is the list of notification receivers.
-                    items:
-                      description: ReceiverConfig defines a notification receiver.
-                      properties:
-                        emailConfig:
-                          description: EmailConfigs is a list of email notification
-                            configurations.
-                          items:
-                            description: EmailConfigSpec defines email notification
-                              configuration.
-                            properties:
-                              authPasswordSecretRef:
-                                description: AuthPasswordSecretRef is a reference
-                                  to a secret containing the SMTP AUTH password.
-                                properties:
-                                  key:
-                                    description: The key to select.
-                                    type: string
-                                  name:
-                                    description: Name of the secret.
-                                    type: string
-                                  namespace:
-                                    description: Namespace of the secret.
-                                    type: string
-                                required:
-                                - key
-                                - name
-                                - namespace
-                                type: object
-                              authUsername:
-                                description: AuthUsername is the SMTP AUTH username.
-                                type: string
-                              from:
-                                description: From is the sender address.
-                                type: string
-                              html:
-                                description: HTML is the HTML body of the email.
-                                type: string
-                              requireTls:
-                                description: RequireTLS requires TLS for the connection.
-                                type: boolean
-                              sendResolved:
-                                description: SendResolved indicates whether to send
-                                  resolved notifications.
-                                type: boolean
-                              smarthost:
-                                description: Smarthost is the SMTP server address.
-                                type: string
-                              text:
-                                description: Text is the text body of the email.
-                                type: string
-                              to:
-                                description: To is the email address to send to.
-                                type: string
-                            type: object
-                          type: array
-                        name:
-                          description: Name is the unique name of the receiver.
+                        opsgenieApiKeySecretRef:
+                          description: OpsGenieAPIKeySecretRef is a reference to a secret containing the OpsGenie API key.
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: Name of the secret.
+                              type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
+                          required:
+                            - key
+                            - name
+                            - namespace
+                          type: object
+                        opsgenieApiUrl:
+                          description: OpsGenieAPIURL is the OpsGenie API URL.
                           type: string
-                        opsgenieConfig:
-                          description: OpsGenieConfigs is a list of OpsGenie notification
-                            configurations.
-                          items:
-                            description: OpsGenieConfigSpec defines OpsGenie notification
-                              configuration.
-                            properties:
-                              apiKeySecretRef:
-                                description: APIKeySecretRef is a reference to a secret
-                                  containing the OpsGenie API key.
-                                properties:
-                                  key:
-                                    description: The key to select.
-                                    type: string
-                                  name:
-                                    description: Name of the secret.
-                                    type: string
-                                  namespace:
-                                    description: Namespace of the secret.
-                                    type: string
-                                required:
-                                - key
-                                - name
-                                - namespace
-                                type: object
-                              apiUrl:
-                                description: APIURL is the OpsGenie API URL.
-                                type: string
-                              message:
-                                description: Message is the alert message.
-                                type: string
-                              priority:
-                                description: Priority is the alert priority.
-                                type: string
-                              sendResolved:
-                                description: SendResolved indicates whether to send
-                                  resolved notifications.
-                                type: boolean
-                            type: object
-                          type: array
-                        pagerdutyConfig:
-                          description: PagerdutyConfigs is a list of PagerDuty notification
-                            configurations.
-                          items:
-                            description: PagerdutyConfigSpec defines PagerDuty notification
-                              configuration.
-                            properties:
-                              description:
-                                description: Description is the description of the
-                                  incident.
-                                type: string
-                              routingKeySecretRef:
-                                description: RoutingKeySecretRef is a reference to
-                                  a secret containing the PagerDuty routing key.
-                                properties:
-                                  key:
-                                    description: The key to select.
-                                    type: string
-                                  name:
-                                    description: Name of the secret.
-                                    type: string
-                                  namespace:
-                                    description: Namespace of the secret.
-                                    type: string
-                                required:
-                                - key
-                                - name
-                                - namespace
-                                type: object
-                              sendResolved:
-                                description: SendResolved indicates whether to send
-                                  resolved notifications.
-                                type: boolean
-                              serviceKeySecretRef:
-                                description: ServiceKeySecretRef is a reference to
-                                  a secret containing the PagerDuty service key.
-                                properties:
-                                  key:
-                                    description: The key to select.
-                                    type: string
-                                  name:
-                                    description: Name of the secret.
-                                    type: string
-                                  namespace:
-                                    description: Namespace of the secret.
-                                    type: string
-                                required:
-                                - key
-                                - name
-                                - namespace
-                                type: object
-                              severity:
-                                description: Severity is the severity of the incident.
-                                type: string
-                              url:
-                                description: URL is the PagerDuty API URL.
-                                type: string
-                            type: object
-                          type: array
-                        slackConfig:
-                          description: SlackConfigs is a list of Slack notification
-                            configurations.
-                          items:
-                            description: SlackConfigSpec defines Slack notification
-                              configuration.
-                            properties:
-                              apiUrlSecretRef:
-                                description: APIURLSecretRef is a reference to a secret
-                                  containing the Slack API URL.
-                                properties:
-                                  key:
-                                    description: The key to select.
-                                    type: string
-                                  name:
-                                    description: Name of the secret.
-                                    type: string
-                                  namespace:
-                                    description: Namespace of the secret.
-                                    type: string
-                                required:
-                                - key
-                                - name
-                                - namespace
-                                type: object
-                              channel:
-                                description: Channel is the Slack channel to send
-                                  to.
-                                type: string
-                              iconEmoji:
-                                description: IconEmoji is the emoji to use as the
-                                  icon.
-                                type: string
-                              iconUrl:
-                                description: IconURL is the URL of the icon to use.
-                                type: string
-                              sendResolved:
-                                description: SendResolved indicates whether to send
-                                  resolved notifications.
-                                type: boolean
-                              text:
-                                description: Text is the message text.
-                                type: string
-                              title:
-                                description: Title is the message title.
-                                type: string
-                              username:
-                                description: Username is the bot username.
-                                type: string
-                            type: object
-                          type: array
-                        webhookConfig:
-                          description: WebhookConfigs is a list of webhook notification
-                            configurations.
-                          items:
-                            description: WebhookConfigSpec defines webhook notification
-                              configuration.
-                            properties:
-                              httpConfig:
-                                description: HTTPConfig contains HTTP client configuration.
-                                properties:
-                                  basicAuth:
-                                    description: BasicAuth contains basic authentication
-                                      credentials.
-                                    properties:
-                                      passwordSecretRef:
-                                        description: PasswordSecretRef is a reference
-                                          to a secret containing the password.
-                                        properties:
-                                          key:
-                                            description: The key to select.
-                                            type: string
-                                          name:
-                                            description: Name of the secret.
-                                            type: string
-                                          namespace:
-                                            description: Namespace of the secret.
-                                            type: string
-                                        required:
-                                        - key
-                                        - name
-                                        - namespace
-                                        type: object
-                                      username:
-                                        description: Username is the username for
-                                          basic auth.
-                                        type: string
-                                    type: object
-                                  bearerTokenSecretRef:
-                                    description: BearerTokenSecretRef is a reference
-                                      to a secret containing the bearer token.
-                                    properties:
-                                      key:
-                                        description: The key to select.
-                                        type: string
-                                      name:
-                                        description: Name of the secret.
-                                        type: string
-                                      namespace:
-                                        description: Namespace of the secret.
-                                        type: string
-                                    required:
+                        pagerdutyUrl:
+                          description: PagerdutyURL is the PagerDuty API URL.
+                          type: string
+                        resolveTimeout:
+                          description: ResolveTimeout is the time after which an alert is declared resolved.
+                          type: string
+                        slackApiUrlSecretRef:
+                          description: SlackAPIURLSecretRef is a reference to a secret containing the Slack API URL.
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: Name of the secret.
+                              type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
+                          required:
+                            - key
+                            - name
+                            - namespace
+                          type: object
+                        smtpAuthIdentity:
+                          description: SMTPAuthIdentity is the SMTP AUTH identity.
+                          type: string
+                        smtpAuthPasswordSecretRef:
+                          description: SMTPAuthPasswordSecretRef is a reference to a secret containing the SMTP AUTH password.
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: Name of the secret.
+                              type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
+                          required:
+                            - key
+                            - name
+                            - namespace
+                          type: object
+                        smtpAuthUsername:
+                          description: SMTPAuthUsername is the SMTP AUTH username.
+                          type: string
+                        smtpFrom:
+                          description: SMTPFrom is the default SMTP from address.
+                          type: string
+                        smtpRequireTls:
+                          description: SMTPRequireTLS requires TLS for SMTP connections.
+                          type: boolean
+                        smtpSmarthost:
+                          description: SMTPSmarthost is the default SMTP smarthost for notifications.
+                          type: string
+                      type: object
+                    inhibitRule:
+                      description: InhibitRules is the list of inhibition rules.
+                      items:
+                        description: InhibitRuleConfig defines an inhibition rule.
+                        properties:
+                          equal:
+                            description: Equal is a list of labels that must have equal values.
+                            items:
+                              type: string
+                            type: array
+                          sourceMatchers:
+                            description: SourceMatchers is a list of matchers for source alerts.
+                            items:
+                              type: string
+                            type: array
+                          targetMatchers:
+                            description: TargetMatchers is a list of matchers for target alerts.
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      type: array
+                    orgId:
+                      description: |-
+                        OrgID is the tenant/organization ID. If not set, the Org ID defined in
+                        the provider config will be used.
+                      type: string
+                    receiver:
+                      description: Receivers is the list of notification receivers.
+                      items:
+                        description: ReceiverConfig defines a notification receiver.
+                        properties:
+                          emailConfig:
+                            description: EmailConfigs is a list of email notification configurations.
+                            items:
+                              description: EmailConfigSpec defines email notification configuration.
+                              properties:
+                                authPasswordSecretRef:
+                                  description: AuthPasswordSecretRef is a reference to a secret containing the SMTP AUTH password.
+                                  properties:
+                                    key:
+                                      description: The key to select.
+                                      type: string
+                                    name:
+                                      description: Name of the secret.
+                                      type: string
+                                    namespace:
+                                      description: Namespace of the secret.
+                                      type: string
+                                  required:
                                     - key
                                     - name
                                     - namespace
-                                    type: object
-                                type: object
-                              sendResolved:
-                                description: SendResolved indicates whether to send
-                                  resolved notifications.
-                                type: boolean
-                              url:
-                                description: URL is the webhook URL.
-                                type: string
-                            type: object
-                          type: array
-                      required:
-                      - name
-                      type: object
-                    type: array
-                  route:
-                    description: Route defines the routing tree.
-                    properties:
-                      activeTimeIntervals:
-                        description: ActiveTimeIntervals is a list of active time
-                          interval names.
-                        items:
-                          type: string
-                        type: array
-                      childRoute:
-                        description: |-
-                          ChildRoute contains nested routes (JSON representation for nested routes).
-                          Use RouteConfigJSON type for nested routes to avoid infinite recursion.
-                        items:
-                          description: ChildRouteConfig defines a child routing node
-                            (limited nesting to avoid infinite recursion).
-                          properties:
-                            activeTimeIntervals:
-                              description: ActiveTimeIntervals is a list of active
-                                time interval names.
-                              items:
-                                type: string
-                              type: array
-                            continue:
-                              description: Continue indicates whether to continue
-                                matching subsequent sibling nodes.
-                              type: boolean
-                            groupBy:
-                              description: GroupBy is a list of labels to group alerts
-                                by.
-                              items:
-                                type: string
-                              type: array
-                            groupInterval:
-                              description: GroupInterval is how long to wait before
-                                sending updated notifications.
-                              type: string
-                            groupWait:
-                              description: GroupWait is how long to wait before sending
-                                the initial notification.
-                              type: string
-                            matchers:
-                              description: Matchers is a list of matchers that an
-                                alert must fulfill.
-                              items:
-                                type: string
-                              type: array
-                            muteTimeIntervals:
-                              description: MuteTimeIntervals is a list of mute time
-                                interval names to apply.
-                              items:
-                                type: string
-                              type: array
-                            receiver:
-                              description: Receiver is the name of the receiver to
-                                use.
-                              type: string
-                            repeatInterval:
-                              description: RepeatInterval is how long to wait before
-                                re-sending a notification.
-                              type: string
-                          type: object
-                        type: array
-                        x-kubernetes-preserve-unknown-fields: true
-                      continue:
-                        description: Continue indicates whether to continue matching
-                          subsequent sibling nodes.
-                        type: boolean
-                      groupBy:
-                        description: GroupBy is a list of labels to group alerts by.
-                        items:
-                          type: string
-                        type: array
-                      groupInterval:
-                        description: GroupInterval is how long to wait before sending
-                          updated notifications.
-                        type: string
-                      groupWait:
-                        description: GroupWait is how long to wait before sending
-                          the initial notification.
-                        type: string
-                      matchers:
-                        description: Matchers is a list of matchers that an alert
-                          must fulfill.
-                        items:
-                          type: string
-                        type: array
-                      muteTimeIntervals:
-                        description: MuteTimeIntervals is a list of mute time interval
-                          names to apply.
-                        items:
-                          type: string
-                        type: array
-                      receiver:
-                        description: Receiver is the name of the receiver to use.
-                        type: string
-                      repeatInterval:
-                        description: RepeatInterval is how long to wait before re-sending
-                          a notification.
-                        type: string
-                    type: object
-                  templates:
-                    description: Templates is a list of template file names to use.
-                    items:
-                      type: string
-                    type: array
-                  templatesFiles:
-                    additionalProperties:
-                      type: string
-                    description: TemplatesFiles is a map of template names to template
-                      content.
-                    type: object
-                  timeInterval:
-                    description: TimeIntervals is the list of mute time intervals.
-                    items:
-                      description: TimeIntervalConfig defines a mute time interval.
-                      properties:
-                        name:
-                          description: Name is the unique name of the time interval.
-                          type: string
-                        timeIntervals:
-                          description: TimeIntervals is a list of time interval definitions.
-                          items:
-                            description: TimeIntervalSpec defines a time interval.
-                            properties:
-                              daysOfMonth:
-                                description: DaysOfMonth is a list of days of the
-                                  month.
-                                items:
-                                  type: string
-                                type: array
-                              months:
-                                description: Months is a list of months.
-                                items:
-                                  type: string
-                                type: array
-                              times:
-                                description: Times is a list of time ranges.
-                                items:
-                                  description: TimeRangeSpec defines a time range.
-                                  properties:
-                                    endTime:
-                                      description: EndTime is the end time (HH:MM
-                                        format).
-                                      type: string
-                                    startTime:
-                                      description: StartTime is the start time (HH:MM
-                                        format).
-                                      type: string
                                   type: object
-                                type: array
-                              weekdays:
-                                description: Weekdays is a list of weekdays.
+                                authUsername:
+                                  description: AuthUsername is the SMTP AUTH username.
+                                  type: string
+                                from:
+                                  description: From is the sender address.
+                                  type: string
+                                html:
+                                  description: HTML is the HTML body of the email.
+                                  type: string
+                                requireTls:
+                                  description: RequireTLS requires TLS for the connection.
+                                  type: boolean
+                                sendResolved:
+                                  description: SendResolved indicates whether to send resolved notifications.
+                                  type: boolean
+                                smarthost:
+                                  description: Smarthost is the SMTP server address.
+                                  type: string
+                                text:
+                                  description: Text is the text body of the email.
+                                  type: string
+                                to:
+                                  description: To is the email address to send to.
+                                  type: string
+                              type: object
+                            type: array
+                          name:
+                            description: Name is the unique name of the receiver.
+                            type: string
+                          opsgenieConfig:
+                            description: OpsGenieConfigs is a list of OpsGenie notification configurations.
+                            items:
+                              description: OpsGenieConfigSpec defines OpsGenie notification configuration.
+                              properties:
+                                apiKeySecretRef:
+                                  description: APIKeySecretRef is a reference to a secret containing the OpsGenie API key.
+                                  properties:
+                                    key:
+                                      description: The key to select.
+                                      type: string
+                                    name:
+                                      description: Name of the secret.
+                                      type: string
+                                    namespace:
+                                      description: Namespace of the secret.
+                                      type: string
+                                  required:
+                                    - key
+                                    - name
+                                    - namespace
+                                  type: object
+                                apiUrl:
+                                  description: APIURL is the OpsGenie API URL.
+                                  type: string
+                                message:
+                                  description: Message is the alert message.
+                                  type: string
+                                priority:
+                                  description: Priority is the alert priority.
+                                  type: string
+                                sendResolved:
+                                  description: SendResolved indicates whether to send resolved notifications.
+                                  type: boolean
+                              type: object
+                            type: array
+                          pagerdutyConfig:
+                            description: PagerdutyConfigs is a list of PagerDuty notification configurations.
+                            items:
+                              description: PagerdutyConfigSpec defines PagerDuty notification configuration.
+                              properties:
+                                description:
+                                  description: Description is the description of the incident.
+                                  type: string
+                                routingKeySecretRef:
+                                  description: RoutingKeySecretRef is a reference to a secret containing the PagerDuty routing key.
+                                  properties:
+                                    key:
+                                      description: The key to select.
+                                      type: string
+                                    name:
+                                      description: Name of the secret.
+                                      type: string
+                                    namespace:
+                                      description: Namespace of the secret.
+                                      type: string
+                                  required:
+                                    - key
+                                    - name
+                                    - namespace
+                                  type: object
+                                sendResolved:
+                                  description: SendResolved indicates whether to send resolved notifications.
+                                  type: boolean
+                                serviceKeySecretRef:
+                                  description: ServiceKeySecretRef is a reference to a secret containing the PagerDuty service key.
+                                  properties:
+                                    key:
+                                      description: The key to select.
+                                      type: string
+                                    name:
+                                      description: Name of the secret.
+                                      type: string
+                                    namespace:
+                                      description: Namespace of the secret.
+                                      type: string
+                                  required:
+                                    - key
+                                    - name
+                                    - namespace
+                                  type: object
+                                severity:
+                                  description: Severity is the severity of the incident.
+                                  type: string
+                                url:
+                                  description: URL is the PagerDuty API URL.
+                                  type: string
+                              type: object
+                            type: array
+                          slackConfig:
+                            description: SlackConfigs is a list of Slack notification configurations.
+                            items:
+                              description: SlackConfigSpec defines Slack notification configuration.
+                              properties:
+                                apiUrlSecretRef:
+                                  description: APIURLSecretRef is a reference to a secret containing the Slack API URL.
+                                  properties:
+                                    key:
+                                      description: The key to select.
+                                      type: string
+                                    name:
+                                      description: Name of the secret.
+                                      type: string
+                                    namespace:
+                                      description: Namespace of the secret.
+                                      type: string
+                                  required:
+                                    - key
+                                    - name
+                                    - namespace
+                                  type: object
+                                channel:
+                                  description: Channel is the Slack channel to send to.
+                                  type: string
+                                iconEmoji:
+                                  description: IconEmoji is the emoji to use as the icon.
+                                  type: string
+                                iconUrl:
+                                  description: IconURL is the URL of the icon to use.
+                                  type: string
+                                sendResolved:
+                                  description: SendResolved indicates whether to send resolved notifications.
+                                  type: boolean
+                                text:
+                                  description: Text is the message text.
+                                  type: string
+                                title:
+                                  description: Title is the message title.
+                                  type: string
+                                username:
+                                  description: Username is the bot username.
+                                  type: string
+                              type: object
+                            type: array
+                          webhookConfig:
+                            description: WebhookConfigs is a list of webhook notification configurations.
+                            items:
+                              description: WebhookConfigSpec defines webhook notification configuration.
+                              properties:
+                                httpConfig:
+                                  description: HTTPConfig contains HTTP client configuration.
+                                  properties:
+                                    basicAuth:
+                                      description: BasicAuth contains basic authentication credentials.
+                                      properties:
+                                        passwordSecretRef:
+                                          description: PasswordSecretRef is a reference to a secret containing the password.
+                                          properties:
+                                            key:
+                                              description: The key to select.
+                                              type: string
+                                            name:
+                                              description: Name of the secret.
+                                              type: string
+                                            namespace:
+                                              description: Namespace of the secret.
+                                              type: string
+                                          required:
+                                            - key
+                                            - name
+                                            - namespace
+                                          type: object
+                                        username:
+                                          description: Username is the username for basic auth.
+                                          type: string
+                                      type: object
+                                    bearerTokenSecretRef:
+                                      description: BearerTokenSecretRef is a reference to a secret containing the bearer token.
+                                      properties:
+                                        key:
+                                          description: The key to select.
+                                          type: string
+                                        name:
+                                          description: Name of the secret.
+                                          type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
+                                      required:
+                                        - key
+                                        - name
+                                        - namespace
+                                      type: object
+                                  type: object
+                                sendResolved:
+                                  description: SendResolved indicates whether to send resolved notifications.
+                                  type: boolean
+                                url:
+                                  description: URL is the webhook URL.
+                                  type: string
+                              type: object
+                            type: array
+                        required:
+                          - name
+                        type: object
+                      type: array
+                    route:
+                      description: Route defines the routing tree.
+                      properties:
+                        activeTimeIntervals:
+                          description: ActiveTimeIntervals is a list of active time interval names.
+                          items:
+                            type: string
+                          type: array
+                        childRoute:
+                          description: |-
+                            ChildRoute contains nested routes (JSON representation for nested routes).
+                            Use RouteConfigJSON type for nested routes to avoid infinite recursion.
+                          items:
+                            description: ChildRouteConfig defines a child routing node (limited nesting to avoid infinite recursion).
+                            properties:
+                              activeTimeIntervals:
+                                description: ActiveTimeIntervals is a list of active time interval names.
                                 items:
                                   type: string
                                 type: array
-                              years:
-                                description: Years is a list of years.
+                              continue:
+                                description: Continue indicates whether to continue matching subsequent sibling nodes.
+                                type: boolean
+                              groupBy:
+                                description: GroupBy is a list of labels to group alerts by.
                                 items:
                                   type: string
                                 type: array
+                              groupInterval:
+                                description: GroupInterval is how long to wait before sending updated notifications.
+                                type: string
+                              groupWait:
+                                description: GroupWait is how long to wait before sending the initial notification.
+                                type: string
+                              matchers:
+                                description: Matchers is a list of matchers that an alert must fulfill.
+                                items:
+                                  type: string
+                                type: array
+                              muteTimeIntervals:
+                                description: MuteTimeIntervals is a list of mute time interval names to apply.
+                                items:
+                                  type: string
+                                type: array
+                              receiver:
+                                description: Receiver is the name of the receiver to use.
+                                type: string
+                              repeatInterval:
+                                description: RepeatInterval is how long to wait before re-sending a notification.
+                                type: string
                             type: object
                           type: array
-                      required:
-                      - name
+                          x-kubernetes-preserve-unknown-fields: true
+                        continue:
+                          description: Continue indicates whether to continue matching subsequent sibling nodes.
+                          type: boolean
+                        groupBy:
+                          description: GroupBy is a list of labels to group alerts by.
+                          items:
+                            type: string
+                          type: array
+                        groupInterval:
+                          description: GroupInterval is how long to wait before sending updated notifications.
+                          type: string
+                        groupWait:
+                          description: GroupWait is how long to wait before sending the initial notification.
+                          type: string
+                        matchers:
+                          description: Matchers is a list of matchers that an alert must fulfill.
+                          items:
+                            type: string
+                          type: array
+                        muteTimeIntervals:
+                          description: MuteTimeIntervals is a list of mute time interval names to apply.
+                          items:
+                            type: string
+                          type: array
+                        receiver:
+                          description: Receiver is the name of the receiver to use.
+                          type: string
+                        repeatInterval:
+                          description: RepeatInterval is how long to wait before re-sending a notification.
+                          type: string
                       type: object
-                    type: array
-                type: object
-              managementPolicies:
-                default:
-                - '*'
-                description: |-
-                  THIS IS A BETA FIELD. It is on by default but can be opted out
-                  through a Crossplane feature flag.
-                  ManagementPolicies specify the array of actions Crossplane is allowed to
-                  take on the managed and external resources.
-                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
-                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
-                items:
+                    templates:
+                      description: Templates is a list of template file names to use.
+                      items:
+                        type: string
+                      type: array
+                    templatesFiles:
+                      additionalProperties:
+                        type: string
+                      description: TemplatesFiles is a map of template names to template content.
+                      type: object
+                    timeInterval:
+                      description: TimeIntervals is the list of mute time intervals.
+                      items:
+                        description: TimeIntervalConfig defines a mute time interval.
+                        properties:
+                          name:
+                            description: Name is the unique name of the time interval.
+                            type: string
+                          timeIntervals:
+                            description: TimeIntervals is a list of time interval definitions.
+                            items:
+                              description: TimeIntervalSpec defines a time interval.
+                              properties:
+                                daysOfMonth:
+                                  description: DaysOfMonth is a list of days of the month.
+                                  items:
+                                    type: string
+                                  type: array
+                                months:
+                                  description: Months is a list of months.
+                                  items:
+                                    type: string
+                                  type: array
+                                times:
+                                  description: Times is a list of time ranges.
+                                  items:
+                                    description: TimeRangeSpec defines a time range.
+                                    properties:
+                                      endTime:
+                                        description: EndTime is the end time (HH:MM format).
+                                        type: string
+                                      startTime:
+                                        description: StartTime is the start time (HH:MM format).
+                                        type: string
+                                    type: object
+                                  type: array
+                                weekdays:
+                                  description: Weekdays is a list of weekdays.
+                                  items:
+                                    type: string
+                                  type: array
+                                years:
+                                  description: Years is a list of years.
+                                  items:
+                                    type: string
+                                  type: array
+                              type: object
+                            type: array
+                        required:
+                          - name
+                        type: object
+                      type: array
+                  type: object
+                managementPolicies:
+                  default:
+                    - '*'
                   description: |-
-                    A ManagementAction represents an action that the Crossplane controllers
-                    can take on an external resource.
-                  enum:
-                  - Observe
-                  - Create
-                  - Update
-                  - Delete
-                  - LateInitialize
-                  - '*'
-                  type: string
-                type: array
-              providerConfigRef:
-                default:
-                  kind: ClusterProviderConfig
-                  name: default
-                description: |-
-                  ProviderConfigReference specifies how the provider that will be used to
-                  create, observe, update, and delete this managed resource should be
-                  configured.
-                properties:
-                  kind:
-                    description: Kind of the referenced object.
+                    THIS IS A BETA FIELD. It is on by default but can be opted out
+                    through a Crossplane feature flag.
+                    ManagementPolicies specify the array of actions Crossplane is allowed to
+                    take on the managed and external resources.
+                    See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                    and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                  items:
+                    description: |-
+                      A ManagementAction represents an action that the Crossplane controllers
+                      can take on an external resource.
+                    enum:
+                      - Observe
+                      - Create
+                      - Update
+                      - Delete
+                      - LateInitialize
+                      - '*'
                     type: string
-                  name:
-                    description: Name of the referenced object.
-                    type: string
-                required:
-                - kind
-                - name
-                type: object
-              writeConnectionSecretToRef:
-                description: |-
-                  WriteConnectionSecretToReference specifies the namespace and name of a
-                  Secret to which any connection details for this managed resource should
-                  be written. Connection details frequently include the endpoint, username,
-                  and password required to connect to the managed resource.
-                properties:
-                  name:
-                    description: Name of the secret.
-                    type: string
-                required:
-                - name
-                type: object
-            required:
-            - forProvider
-            type: object
-          status:
-            description: ConfigStatus represents the observed state of an AlertmanagerConfig.
-            properties:
-              atProvider:
-                description: ConfigObservation represents the observed state of an
-                  AlertmanagerConfig.
-                properties:
-                  orgId:
-                    description: OrgID is the tenant/organization ID used.
-                    type: string
-                type: object
-              conditions:
-                description: Conditions of the resource.
-                items:
-                  description: A Condition that may apply to a resource.
+                  type: array
+                providerConfigRef:
+                  default:
+                    kind: ClusterProviderConfig
+                    name: default
+                  description: |-
+                    ProviderConfigReference specifies how the provider that will be used to
+                    create, observe, update, and delete this managed resource should be
+                    configured.
                   properties:
-                    lastTransitionTime:
-                      description: |-
-                        LastTransitionTime is the last time this condition transitioned from one
-                        status to another.
-                      format: date-time
+                    kind:
+                      description: Kind of the referenced object.
                       type: string
-                    message:
-                      description: |-
-                        A Message containing details about this condition's last transition from
-                        one status to another, if any.
-                      type: string
-                    observedGeneration:
-                      description: |-
-                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
-                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-                        with respect to the current state of the instance.
-                      format: int64
-                      type: integer
-                    reason:
-                      description: A Reason for this condition's last transition from
-                        one status to another.
-                      type: string
-                    status:
-                      description: Status of this condition; is it currently True,
-                        False, or Unknown?
-                      type: string
-                    type:
-                      description: |-
-                        Type of this condition. At most one of each condition type may apply to
-                        a resource at any point in time.
+                    name:
+                      description: Name of the referenced object.
                       type: string
                   required:
-                  - lastTransitionTime
-                  - reason
-                  - status
-                  - type
+                    - kind
+                    - name
                   type: object
-                type: array
-                x-kubernetes-list-map-keys:
-                - type
-                x-kubernetes-list-type: map
-              observedGeneration:
-                description: |-
-                  ObservedGeneration is the latest metadata.generation
-                  which resulted in either a ready state, or stalled due to error
-                  it can not recover from without human intervention.
-                format: int64
-                type: integer
-            type: object
-        required:
-        - spec
-        type: object
-    served: true
-    storage: true
-    subresources:
-      status: {}
+                writeConnectionSecretToRef:
+                  description: |-
+                    WriteConnectionSecretToReference specifies the namespace and name of a
+                    Secret to which any connection details for this managed resource should
+                    be written. Connection details frequently include the endpoint, username,
+                    and password required to connect to the managed resource.
+                  properties:
+                    name:
+                      description: Name of the secret.
+                      type: string
+                  required:
+                    - name
+                  type: object
+              required:
+                - forProvider
+              type: object
+            status:
+              description: ConfigStatus represents the observed state of an AlertmanagerConfig.
+              properties:
+                atProvider:
+                  description: ConfigObservation represents the observed state of an AlertmanagerConfig.
+                  properties:
+                    orgId:
+                      description: OrgID is the tenant/organization ID used.
+                      type: string
+                  type: object
+                conditions:
+                  description: Conditions of the resource.
+                  items:
+                    description: A Condition that may apply to a resource.
+                    properties:
+                      lastTransitionTime:
+                        description: |-
+                          LastTransitionTime is the last time this condition transitioned from one
+                          status to another.
+                        format: date-time
+                        type: string
+                      message:
+                        description: |-
+                          A Message containing details about this condition's last transition from
+                          one status to another, if any.
+                        type: string
+                      observedGeneration:
+                        description: |-
+                          ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                          For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                          with respect to the current state of the instance.
+                        format: int64
+                        type: integer
+                      reason:
+                        description: A Reason for this condition's last transition from one status to another.
+                        type: string
+                      status:
+                        description: Status of this condition; is it currently True, False, or Unknown?
+                        type: string
+                      type:
+                        description: |-
+                          Type of this condition. At most one of each condition type may apply to
+                          a resource at any point in time.
+                        type: string
+                    required:
+                      - lastTransitionTime
+                      - reason
+                      - status
+                      - type
+                    type: object
+                  type: array
+                  x-kubernetes-list-map-keys:
+                    - type
+                  x-kubernetes-list-type: map
+                observedGeneration:
+                  description: |-
+                    ObservedGeneration is the latest metadata.generation
+                    which resulted in either a ready state, or stalled due to error
+                    it can not recover from without human intervention.
+                  format: int64
+                  type: integer
+              type: object
+          required:
+            - spec
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
+    - additionalPrinterColumns:
+        - jsonPath: .status.conditions[?(@.type=='Synced')].status
+          name: SYNCED
+          type: string
+        - jsonPath: .status.conditions[?(@.type=='Ready')].status
+          name: READY
+          type: string
+        - jsonPath: .metadata.annotations.crossplane\.io/external-name
+          name: EXTERNAL-NAME
+          type: string
+        - jsonPath: .metadata.creationTimestamp
+          name: AGE
+          type: date
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: Config is the Schema for the AlertmanagerConfig API.
+          properties:
+            apiVersion:
+              description: |-
+                APIVersion defines the versioned schema of this representation of an object.
+                Servers should convert recognized schemas to the latest internal value, and
+                may reject unrecognized values.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+              type: string
+            kind:
+              description: |-
+                Kind is a string value representing the REST resource this object represents.
+                Servers may infer this from the endpoint the client submits requests to.
+                Cannot be updated.
+                In CamelCase.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: ConfigSpec defines the desired state of an AlertmanagerConfig.
+              properties:
+                forProvider:
+                  description: ConfigParameters defines the desired state of an AlertmanagerConfig.
+                  properties:
+                    global:
+                      description: Global contains global alertmanager configuration.
+                      properties:
+                        opsgenieApiKeySecretRef:
+                          description: OpsGenieAPIKeySecretRef is a reference to a secret containing the OpsGenie API key.
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: Name of the secret.
+                              type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
+                          required:
+                            - key
+                            - name
+                            - namespace
+                          type: object
+                        opsgenieApiUrl:
+                          description: OpsGenieAPIURL is the OpsGenie API URL.
+                          type: string
+                        pagerdutyUrl:
+                          description: PagerdutyURL is the PagerDuty API URL.
+                          type: string
+                        resolveTimeout:
+                          description: ResolveTimeout is the time after which an alert is declared resolved.
+                          type: string
+                        slackApiUrlSecretRef:
+                          description: SlackAPIURLSecretRef is a reference to a secret containing the Slack API URL.
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: Name of the secret.
+                              type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
+                          required:
+                            - key
+                            - name
+                            - namespace
+                          type: object
+                        smtpAuthIdentity:
+                          description: SMTPAuthIdentity is the SMTP AUTH identity.
+                          type: string
+                        smtpAuthPasswordSecretRef:
+                          description: SMTPAuthPasswordSecretRef is a reference to a secret containing the SMTP AUTH password.
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: Name of the secret.
+                              type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
+                          required:
+                            - key
+                            - name
+                            - namespace
+                          type: object
+                        smtpAuthUsername:
+                          description: SMTPAuthUsername is the SMTP AUTH username.
+                          type: string
+                        smtpFrom:
+                          description: SMTPFrom is the default SMTP from address.
+                          type: string
+                        smtpRequireTls:
+                          description: SMTPRequireTLS requires TLS for SMTP connections.
+                          type: boolean
+                        smtpSmarthost:
+                          description: SMTPSmarthost is the default SMTP smarthost for notifications.
+                          type: string
+                      type: object
+                    inhibitRule:
+                      description: InhibitRules is the list of inhibition rules.
+                      items:
+                        description: InhibitRuleConfig defines an inhibition rule.
+                        properties:
+                          equal:
+                            description: Equal is a list of labels that must have equal values.
+                            items:
+                              type: string
+                            type: array
+                          sourceMatchers:
+                            description: SourceMatchers is a list of matchers for source alerts.
+                            items:
+                              type: string
+                            type: array
+                          targetMatchers:
+                            description: TargetMatchers is a list of matchers for target alerts.
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      type: array
+                    orgId:
+                      description: |-
+                        OrgID is the tenant/organization ID. If not set, the Org ID defined in
+                        the provider config will be used.
+                      type: string
+                    receiver:
+                      description: Receivers is the list of notification receivers.
+                      items:
+                        description: ReceiverConfig defines a notification receiver.
+                        properties:
+                          emailConfig:
+                            description: EmailConfigs is a list of email notification configurations.
+                            items:
+                              description: EmailConfigSpec defines email notification configuration.
+                              properties:
+                                authPasswordSecretRef:
+                                  description: AuthPasswordSecretRef is a reference to a secret containing the SMTP AUTH password.
+                                  properties:
+                                    key:
+                                      description: The key to select.
+                                      type: string
+                                    name:
+                                      description: Name of the secret.
+                                      type: string
+                                    namespace:
+                                      description: Namespace of the secret.
+                                      type: string
+                                  required:
+                                    - key
+                                    - name
+                                    - namespace
+                                  type: object
+                                authUsername:
+                                  description: AuthUsername is the SMTP AUTH username.
+                                  type: string
+                                from:
+                                  description: From is the sender address.
+                                  type: string
+                                html:
+                                  description: HTML is the HTML body of the email.
+                                  type: string
+                                requireTls:
+                                  description: RequireTLS requires TLS for the connection.
+                                  type: boolean
+                                sendResolved:
+                                  description: SendResolved indicates whether to send resolved notifications.
+                                  type: boolean
+                                smarthost:
+                                  description: Smarthost is the SMTP server address.
+                                  type: string
+                                text:
+                                  description: Text is the text body of the email.
+                                  type: string
+                                to:
+                                  description: To is the email address to send to.
+                                  type: string
+                              type: object
+                            type: array
+                          name:
+                            description: Name is the unique name of the receiver.
+                            type: string
+                          opsgenieConfig:
+                            description: OpsGenieConfigs is a list of OpsGenie notification configurations.
+                            items:
+                              description: OpsGenieConfigSpec defines OpsGenie notification configuration.
+                              properties:
+                                apiKeySecretRef:
+                                  description: APIKeySecretRef is a reference to a secret containing the OpsGenie API key.
+                                  properties:
+                                    key:
+                                      description: The key to select.
+                                      type: string
+                                    name:
+                                      description: Name of the secret.
+                                      type: string
+                                    namespace:
+                                      description: Namespace of the secret.
+                                      type: string
+                                  required:
+                                    - key
+                                    - name
+                                    - namespace
+                                  type: object
+                                apiUrl:
+                                  description: APIURL is the OpsGenie API URL.
+                                  type: string
+                                message:
+                                  description: Message is the alert message.
+                                  type: string
+                                priority:
+                                  description: Priority is the alert priority.
+                                  type: string
+                                sendResolved:
+                                  description: SendResolved indicates whether to send resolved notifications.
+                                  type: boolean
+                              type: object
+                            type: array
+                          pagerdutyConfig:
+                            description: PagerdutyConfigs is a list of PagerDuty notification configurations.
+                            items:
+                              description: PagerdutyConfigSpec defines PagerDuty notification configuration.
+                              properties:
+                                description:
+                                  description: Description is the description of the incident.
+                                  type: string
+                                routingKeySecretRef:
+                                  description: RoutingKeySecretRef is a reference to a secret containing the PagerDuty routing key.
+                                  properties:
+                                    key:
+                                      description: The key to select.
+                                      type: string
+                                    name:
+                                      description: Name of the secret.
+                                      type: string
+                                    namespace:
+                                      description: Namespace of the secret.
+                                      type: string
+                                  required:
+                                    - key
+                                    - name
+                                    - namespace
+                                  type: object
+                                sendResolved:
+                                  description: SendResolved indicates whether to send resolved notifications.
+                                  type: boolean
+                                serviceKeySecretRef:
+                                  description: ServiceKeySecretRef is a reference to a secret containing the PagerDuty service key.
+                                  properties:
+                                    key:
+                                      description: The key to select.
+                                      type: string
+                                    name:
+                                      description: Name of the secret.
+                                      type: string
+                                    namespace:
+                                      description: Namespace of the secret.
+                                      type: string
+                                  required:
+                                    - key
+                                    - name
+                                    - namespace
+                                  type: object
+                                severity:
+                                  description: Severity is the severity of the incident.
+                                  type: string
+                                url:
+                                  description: URL is the PagerDuty API URL.
+                                  type: string
+                              type: object
+                            type: array
+                          slackConfig:
+                            description: SlackConfigs is a list of Slack notification configurations.
+                            items:
+                              description: SlackConfigSpec defines Slack notification configuration.
+                              properties:
+                                apiUrlSecretRef:
+                                  description: APIURLSecretRef is a reference to a secret containing the Slack API URL.
+                                  properties:
+                                    key:
+                                      description: The key to select.
+                                      type: string
+                                    name:
+                                      description: Name of the secret.
+                                      type: string
+                                    namespace:
+                                      description: Namespace of the secret.
+                                      type: string
+                                  required:
+                                    - key
+                                    - name
+                                    - namespace
+                                  type: object
+                                channel:
+                                  description: Channel is the Slack channel to send to.
+                                  type: string
+                                iconEmoji:
+                                  description: IconEmoji is the emoji to use as the icon.
+                                  type: string
+                                iconUrl:
+                                  description: IconURL is the URL of the icon to use.
+                                  type: string
+                                sendResolved:
+                                  description: SendResolved indicates whether to send resolved notifications.
+                                  type: boolean
+                                text:
+                                  description: Text is the message text.
+                                  type: string
+                                title:
+                                  description: Title is the message title.
+                                  type: string
+                                username:
+                                  description: Username is the bot username.
+                                  type: string
+                              type: object
+                            type: array
+                          webhookConfig:
+                            description: WebhookConfigs is a list of webhook notification configurations.
+                            items:
+                              description: WebhookConfigSpec defines webhook notification configuration.
+                              properties:
+                                httpConfig:
+                                  description: HTTPConfig contains HTTP client configuration.
+                                  properties:
+                                    basicAuth:
+                                      description: BasicAuth contains basic authentication credentials.
+                                      properties:
+                                        passwordSecretRef:
+                                          description: PasswordSecretRef is a reference to a secret containing the password.
+                                          properties:
+                                            key:
+                                              description: The key to select.
+                                              type: string
+                                            name:
+                                              description: Name of the secret.
+                                              type: string
+                                            namespace:
+                                              description: Namespace of the secret.
+                                              type: string
+                                          required:
+                                            - key
+                                            - name
+                                            - namespace
+                                          type: object
+                                        username:
+                                          description: Username is the username for basic auth.
+                                          type: string
+                                      type: object
+                                    bearerTokenSecretRef:
+                                      description: BearerTokenSecretRef is a reference to a secret containing the bearer token.
+                                      properties:
+                                        key:
+                                          description: The key to select.
+                                          type: string
+                                        name:
+                                          description: Name of the secret.
+                                          type: string
+                                        namespace:
+                                          description: Namespace of the secret.
+                                          type: string
+                                      required:
+                                        - key
+                                        - name
+                                        - namespace
+                                      type: object
+                                  type: object
+                                sendResolved:
+                                  description: SendResolved indicates whether to send resolved notifications.
+                                  type: boolean
+                                url:
+                                  description: URL is the webhook URL.
+                                  type: string
+                              type: object
+                            type: array
+                        required:
+                          - name
+                        type: object
+                      type: array
+                    route:
+                      description: Route defines the routing tree.
+                      properties:
+                        activeTimeIntervals:
+                          description: ActiveTimeIntervals is a list of active time interval names.
+                          items:
+                            type: string
+                          type: array
+                        childRoute:
+                          description: |-
+                            ChildRoute contains nested routes (JSON representation for nested routes).
+                            Use RouteConfigJSON type for nested routes to avoid infinite recursion.
+                          items:
+                            description: ChildRouteConfig defines a child routing node (limited nesting to avoid infinite recursion).
+                            properties:
+                              activeTimeIntervals:
+                                description: ActiveTimeIntervals is a list of active time interval names.
+                                items:
+                                  type: string
+                                type: array
+                              continue:
+                                description: Continue indicates whether to continue matching subsequent sibling nodes.
+                                type: boolean
+                              groupBy:
+                                description: GroupBy is a list of labels to group alerts by.
+                                items:
+                                  type: string
+                                type: array
+                              groupInterval:
+                                description: GroupInterval is how long to wait before sending updated notifications.
+                                type: string
+                              groupWait:
+                                description: GroupWait is how long to wait before sending the initial notification.
+                                type: string
+                              matchers:
+                                description: Matchers is a list of matchers that an alert must fulfill.
+                                items:
+                                  type: string
+                                type: array
+                              muteTimeIntervals:
+                                description: MuteTimeIntervals is a list of mute time interval names to apply.
+                                items:
+                                  type: string
+                                type: array
+                              receiver:
+                                description: Receiver is the name of the receiver to use.
+                                type: string
+                              repeatInterval:
+                                description: RepeatInterval is how long to wait before re-sending a notification.
+                                type: string
+                            type: object
+                          type: array
+                          x-kubernetes-preserve-unknown-fields: true
+                        continue:
+                          description: Continue indicates whether to continue matching subsequent sibling nodes.
+                          type: boolean
+                        groupBy:
+                          description: GroupBy is a list of labels to group alerts by.
+                          items:
+                            type: string
+                          type: array
+                        groupInterval:
+                          description: GroupInterval is how long to wait before sending updated notifications.
+                          type: string
+                        groupWait:
+                          description: GroupWait is how long to wait before sending the initial notification.
+                          type: string
+                        matchers:
+                          description: Matchers is a list of matchers that an alert must fulfill.
+                          items:
+                            type: string
+                          type: array
+                        muteTimeIntervals:
+                          description: MuteTimeIntervals is a list of mute time interval names to apply.
+                          items:
+                            type: string
+                          type: array
+                        receiver:
+                          description: Receiver is the name of the receiver to use.
+                          type: string
+                        repeatInterval:
+                          description: RepeatInterval is how long to wait before re-sending a notification.
+                          type: string
+                      type: object
+                    templates:
+                      description: Templates is a list of template file names to use.
+                      items:
+                        type: string
+                      type: array
+                    templatesFiles:
+                      additionalProperties:
+                        type: string
+                      description: TemplatesFiles is a map of template names to template content.
+                      type: object
+                    timeInterval:
+                      description: TimeIntervals is the list of mute time intervals.
+                      items:
+                        description: TimeIntervalConfig defines a mute time interval.
+                        properties:
+                          name:
+                            description: Name is the unique name of the time interval.
+                            type: string
+                          timeIntervals:
+                            description: TimeIntervals is a list of time interval definitions.
+                            items:
+                              description: TimeIntervalSpec defines a time interval.
+                              properties:
+                                daysOfMonth:
+                                  description: DaysOfMonth is a list of days of the month.
+                                  items:
+                                    type: string
+                                  type: array
+                                months:
+                                  description: Months is a list of months.
+                                  items:
+                                    type: string
+                                  type: array
+                                times:
+                                  description: Times is a list of time ranges.
+                                  items:
+                                    description: TimeRangeSpec defines a time range.
+                                    properties:
+                                      endTime:
+                                        description: EndTime is the end time (HH:MM format).
+                                        type: string
+                                      startTime:
+                                        description: StartTime is the start time (HH:MM format).
+                                        type: string
+                                    type: object
+                                  type: array
+                                weekdays:
+                                  description: Weekdays is a list of weekdays.
+                                  items:
+                                    type: string
+                                  type: array
+                                years:
+                                  description: Years is a list of years.
+                                  items:
+                                    type: string
+                                  type: array
+                              type: object
+                            type: array
+                        required:
+                          - name
+                        type: object
+                      type: array
+                  type: object
+                managementPolicies:
+                  default:
+                    - '*'
+                  description: |-
+                    THIS IS A BETA FIELD. It is on by default but can be opted out
+                    through a Crossplane feature flag.
+                    ManagementPolicies specify the array of actions Crossplane is allowed to
+                    take on the managed and external resources.
+                    See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                    and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                  items:
+                    description: |-
+                      A ManagementAction represents an action that the Crossplane controllers
+                      can take on an external resource.
+                    enum:
+                      - Observe
+                      - Create
+                      - Update
+                      - Delete
+                      - LateInitialize
+                      - '*'
+                    type: string
+                  type: array
+                providerConfigRef:
+                  default:
+                    kind: ClusterProviderConfig
+                    name: default
+                  description: |-
+                    ProviderConfigReference specifies how the provider that will be used to
+                    create, observe, update, and delete this managed resource should be
+                    configured.
+                  properties:
+                    kind:
+                      description: Kind of the referenced object.
+                      type: string
+                    name:
+                      description: Name of the referenced object.
+                      type: string
+                  required:
+                    - kind
+                    - name
+                  type: object
+                writeConnectionSecretToRef:
+                  description: |-
+                    WriteConnectionSecretToReference specifies the namespace and name of a
+                    Secret to which any connection details for this managed resource should
+                    be written. Connection details frequently include the endpoint, username,
+                    and password required to connect to the managed resource.
+                  properties:
+                    name:
+                      description: Name of the secret.
+                      type: string
+                  required:
+                    - name
+                  type: object
+              required:
+                - forProvider
+              type: object
+            status:
+              description: ConfigStatus represents the observed state of an AlertmanagerConfig.
+              properties:
+                atProvider:
+                  description: ConfigObservation represents the observed state of an AlertmanagerConfig.
+                  properties:
+                    orgId:
+                      description: OrgID is the tenant/organization ID used.
+                      type: string
+                  type: object
+                conditions:
+                  description: Conditions of the resource.
+                  items:
+                    description: A Condition that may apply to a resource.
+                    properties:
+                      lastTransitionTime:
+                        description: |-
+                          LastTransitionTime is the last time this condition transitioned from one
+                          status to another.
+                        format: date-time
+                        type: string
+                      message:
+                        description: |-
+                          A Message containing details about this condition's last transition from
+                          one status to another, if any.
+                        type: string
+                      observedGeneration:
+                        description: |-
+                          ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                          For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                          with respect to the current state of the instance.
+                        format: int64
+                        type: integer
+                      reason:
+                        description: A Reason for this condition's last transition from one status to another.
+                        type: string
+                      status:
+                        description: Status of this condition; is it currently True, False, or Unknown?
+                        type: string
+                      type:
+                        description: |-
+                          Type of this condition. At most one of each condition type may apply to
+                          a resource at any point in time.
+                        type: string
+                    required:
+                      - lastTransitionTime
+                      - reason
+                      - status
+                      - type
+                    type: object
+                  type: array
+                  x-kubernetes-list-map-keys:
+                    - type
+                  x-kubernetes-list-type: map
+                observedGeneration:
+                  description: |-
+                    ObservedGeneration is the latest metadata.generation
+                    which resulted in either a ready state, or stalled due to error
+                    it can not recover from without human intervention.
+                  format: int64
+                  type: integer
+              type: object
+          required:
+            - spec
+          type: object
+      served: true
+      storage: false
+      subresources:
+        status: {}
