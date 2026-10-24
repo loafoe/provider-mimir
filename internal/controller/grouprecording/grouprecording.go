@@ -52,12 +52,12 @@ func formatExternalName(namespace, name string) string {
 	return fmt.Sprintf("%s/%s", namespace, name)
 }
 
-func parseExternalName(externalName string) (string, string) {
+func parseExternalName(externalName string) string {
 	parts := strings.SplitN(externalName, "/", 2)
 	if len(parts) == 2 {
-		return parts[0], parts[1]
+		return parts[1]
 	}
-	return "", externalName
+	return externalName
 }
 
 // Setup adds a controller that reconciles GroupRecording managed resources.
@@ -150,72 +150,30 @@ func buildClientConfig(ctx context.Context, kube client.Client, namespace string
 		Headers:         pc.Spec.Headers,
 	}
 
-	switch pc.Spec.Credentials.AuthType {
-	case apisv1.AuthTypeBasic:
-		if pc.Spec.Credentials.BasicAuth == nil {
-			return cfg, errors.New("basicAuth is required when authType is basic")
+	creds := mimir.CredentialsRefs{AuthType: string(pc.Spec.Credentials.AuthType)}
+	if pc.Spec.Credentials.BasicAuth != nil {
+		creds.BasicAuth = &mimir.BasicAuthRefs{
+			UsernameSecretRef: pc.Spec.Credentials.BasicAuth.UsernameSecretRef,
+			PasswordSecretRef: pc.Spec.Credentials.BasicAuth.PasswordSecretRef,
 		}
-		username, err := getSecretValue(ctx, kube, namespace, pc.Spec.Credentials.BasicAuth.UsernameSecretRef)
-		if err != nil {
-			return cfg, errors.Wrap(err, "cannot get username from secret")
+	}
+	if pc.Spec.Credentials.TokenAuth != nil {
+		creds.TokenAuth = &mimir.TokenAuthRefs{
+			TokenSecretRef: pc.Spec.Credentials.TokenAuth.TokenSecretRef,
 		}
-		password, err := getSecretValue(ctx, kube, namespace, pc.Spec.Credentials.BasicAuth.PasswordSecretRef)
-		if err != nil {
-			return cfg, errors.Wrap(err, "cannot get password from secret")
-		}
-		cfg.Username = username
-		cfg.Password = password
-	case apisv1.AuthTypeToken:
-		if pc.Spec.Credentials.TokenAuth == nil {
-			return cfg, errors.New("tokenAuth is required when authType is token")
-		}
-		token, err := getSecretValue(ctx, kube, namespace, pc.Spec.Credentials.TokenAuth.TokenSecretRef)
-		if err != nil {
-			return cfg, errors.Wrap(err, "cannot get token from secret")
-		}
-		cfg.Token = token
-	default:
-		return cfg, errors.Errorf("unsupported auth type: %s", pc.Spec.Credentials.AuthType)
 	}
 
+	var tlsRefs *mimir.TLSRefs
 	if pc.Spec.TLS != nil {
-		cfg.Insecure = pc.Spec.TLS.Insecure
-		if pc.Spec.TLS.CASecretRef != nil {
-			ca, err := getSecretValue(ctx, kube, namespace, *pc.Spec.TLS.CASecretRef)
-			if err != nil {
-				return cfg, errors.Wrap(err, "cannot get CA from secret")
-			}
-			cfg.CA = ca
-		}
-		if pc.Spec.TLS.CertSecretRef != nil {
-			cert, err := getSecretValue(ctx, kube, namespace, *pc.Spec.TLS.CertSecretRef)
-			if err != nil {
-				return cfg, errors.Wrap(err, "cannot get cert from secret")
-			}
-			cfg.Cert = cert
-		}
-		if pc.Spec.TLS.KeySecretRef != nil {
-			key, err := getSecretValue(ctx, kube, namespace, *pc.Spec.TLS.KeySecretRef)
-			if err != nil {
-				return cfg, errors.Wrap(err, "cannot get key from secret")
-			}
-			cfg.Key = key
+		tlsRefs = &mimir.TLSRefs{
+			Insecure:      pc.Spec.TLS.Insecure,
+			CASecretRef:   pc.Spec.TLS.CASecretRef,
+			CertSecretRef: pc.Spec.TLS.CertSecretRef,
+			KeySecretRef:  pc.Spec.TLS.KeySecretRef,
 		}
 	}
 
-	return cfg, nil
-}
-
-func getSecretValue(ctx context.Context, kube client.Client, namespace string, ref xpv1.SecretKeySelector) (string, error) {
-	secretRef := ref
-	if secretRef.Namespace == "" {
-		secretRef.Namespace = namespace
-	}
-	data, err := resource.CommonCredentialExtractor(ctx, xpv1.CredentialsSourceSecret, kube, xpv1.CommonCredentialSelectors{SecretRef: &secretRef})
-	if err != nil {
-		return "", err
-	}
-	return string(data), nil
+	return mimir.BuildConfig(ctx, kube, namespace, cfg, creds, tlsRefs)
 }
 
 type external struct {
@@ -241,7 +199,7 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 		return managed.ExternalObservation{ResourceExists: false}, nil
 	}
 
-	_, name := parseExternalName(externalName)
+	name := parseExternalName(externalName)
 
 	rg, err := e.client.GetRuleGroup(ctx, namespace, name, orgID)
 	if err != nil {
@@ -298,7 +256,7 @@ func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 	if name == "" {
 		name = cr.Name
 	}
-	_, name = parseExternalName(name)
+	name = parseExternalName(name)
 
 	rg := e.buildRuleGroup(cr, name)
 
@@ -329,7 +287,7 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 	}
 
 	externalName := meta.GetExternalName(cr)
-	_, name := parseExternalName(externalName)
+	name := parseExternalName(externalName)
 
 	rg := e.buildRuleGroup(cr, name)
 
@@ -356,7 +314,7 @@ func (e *external) Delete(ctx context.Context, mg resource.Managed) (managed.Ext
 	}
 
 	externalName := meta.GetExternalName(cr)
-	_, name := parseExternalName(externalName)
+	name := parseExternalName(externalName)
 
 	if err := e.client.DeleteRuleGroup(ctx, namespace, name, orgID); err != nil {
 		return managed.ExternalDelete{}, errors.Wrap(err, "cannot delete rule group")

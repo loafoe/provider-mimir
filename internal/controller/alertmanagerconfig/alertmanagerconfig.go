@@ -134,72 +134,30 @@ func (c *connector) buildClientConfig(ctx context.Context, namespace string, pc 
 		Headers:         pc.Spec.Headers,
 	}
 
-	switch pc.Spec.Credentials.AuthType {
-	case apisv1.AuthTypeBasic:
-		if pc.Spec.Credentials.BasicAuth == nil {
-			return cfg, errors.New("basicAuth is required when authType is basic")
+	creds := mimir.CredentialsRefs{AuthType: string(pc.Spec.Credentials.AuthType)}
+	if pc.Spec.Credentials.BasicAuth != nil {
+		creds.BasicAuth = &mimir.BasicAuthRefs{
+			UsernameSecretRef: pc.Spec.Credentials.BasicAuth.UsernameSecretRef,
+			PasswordSecretRef: pc.Spec.Credentials.BasicAuth.PasswordSecretRef,
 		}
-		username, err := c.getSecretValue(ctx, namespace, pc.Spec.Credentials.BasicAuth.UsernameSecretRef)
-		if err != nil {
-			return cfg, errors.Wrap(err, "cannot get username from secret")
+	}
+	if pc.Spec.Credentials.TokenAuth != nil {
+		creds.TokenAuth = &mimir.TokenAuthRefs{
+			TokenSecretRef: pc.Spec.Credentials.TokenAuth.TokenSecretRef,
 		}
-		password, err := c.getSecretValue(ctx, namespace, pc.Spec.Credentials.BasicAuth.PasswordSecretRef)
-		if err != nil {
-			return cfg, errors.Wrap(err, "cannot get password from secret")
-		}
-		cfg.Username = username
-		cfg.Password = password
-	case apisv1.AuthTypeToken:
-		if pc.Spec.Credentials.TokenAuth == nil {
-			return cfg, errors.New("tokenAuth is required when authType is token")
-		}
-		token, err := c.getSecretValue(ctx, namespace, pc.Spec.Credentials.TokenAuth.TokenSecretRef)
-		if err != nil {
-			return cfg, errors.Wrap(err, "cannot get token from secret")
-		}
-		cfg.Token = token
-	default:
-		return cfg, errors.Errorf("unsupported auth type: %s", pc.Spec.Credentials.AuthType)
 	}
 
+	var tlsRefs *mimir.TLSRefs
 	if pc.Spec.TLS != nil {
-		cfg.Insecure = pc.Spec.TLS.Insecure
-		if pc.Spec.TLS.CASecretRef != nil {
-			ca, err := c.getSecretValue(ctx, namespace, *pc.Spec.TLS.CASecretRef)
-			if err != nil {
-				return cfg, errors.Wrap(err, "cannot get CA from secret")
-			}
-			cfg.CA = ca
-		}
-		if pc.Spec.TLS.CertSecretRef != nil {
-			cert, err := c.getSecretValue(ctx, namespace, *pc.Spec.TLS.CertSecretRef)
-			if err != nil {
-				return cfg, errors.Wrap(err, "cannot get cert from secret")
-			}
-			cfg.Cert = cert
-		}
-		if pc.Spec.TLS.KeySecretRef != nil {
-			key, err := c.getSecretValue(ctx, namespace, *pc.Spec.TLS.KeySecretRef)
-			if err != nil {
-				return cfg, errors.Wrap(err, "cannot get key from secret")
-			}
-			cfg.Key = key
+		tlsRefs = &mimir.TLSRefs{
+			Insecure:      pc.Spec.TLS.Insecure,
+			CASecretRef:   pc.Spec.TLS.CASecretRef,
+			CertSecretRef: pc.Spec.TLS.CertSecretRef,
+			KeySecretRef:  pc.Spec.TLS.KeySecretRef,
 		}
 	}
 
-	return cfg, nil
-}
-
-func (c *connector) getSecretValue(ctx context.Context, namespace string, ref xpv1.SecretKeySelector) (string, error) {
-	secretRef := ref
-	if secretRef.Namespace == "" {
-		secretRef.Namespace = namespace
-	}
-	data, err := resource.CommonCredentialExtractor(ctx, xpv1.CredentialsSourceSecret, c.kube, xpv1.CommonCredentialSelectors{SecretRef: &secretRef})
-	if err != nil {
-		return "", err
-	}
-	return string(data), nil
+	return mimir.BuildConfig(ctx, c.kube, namespace, cfg, creds, tlsRefs)
 }
 
 type external struct {
@@ -326,39 +284,7 @@ func (e *external) buildAlertmanagerConfig(cr *alertmanagerv1.Config) *mimir.Ale
 		alertConfig.Route = e.buildRoute(fp.Route)
 	}
 
-	for _, r := range fp.Receivers {
-		receiver := mimir.Receiver{Name: r.Name}
-		for _, ec := range r.EmailConfigs {
-			receiver.EmailConfigs = append(receiver.EmailConfigs, mimir.EmailConfig{
-				To:           ptrToStr(ec.To),
-				From:         ptrToStr(ec.From),
-				Smarthost:    ptrToStr(ec.Smarthost),
-				AuthUsername: ptrToStr(ec.AuthUsername),
-				HTML:         ptrToStr(ec.HTML),
-				Text:         ptrToStr(ec.Text),
-				RequireTLS:   ec.RequireTLS,
-				SendResolved: ptrToBool(ec.SendResolved),
-			})
-		}
-		for _, sc := range r.SlackConfigs {
-			receiver.SlackConfigs = append(receiver.SlackConfigs, mimir.SlackConfig{
-				Channel:      ptrToStr(sc.Channel),
-				Username:     ptrToStr(sc.Username),
-				IconEmoji:    ptrToStr(sc.IconEmoji),
-				IconURL:      ptrToStr(sc.IconURL),
-				Title:        ptrToStr(sc.Title),
-				Text:         ptrToStr(sc.Text),
-				SendResolved: ptrToBool(sc.SendResolved),
-			})
-		}
-		for _, wc := range r.WebhookConfigs {
-			receiver.WebhookConfigs = append(receiver.WebhookConfigs, mimir.WebhookConfig{
-				URL:          ptrToStr(wc.URL),
-				SendResolved: ptrToBool(wc.SendResolved),
-			})
-		}
-		alertConfig.Receivers = append(alertConfig.Receivers, receiver)
-	}
+	alertConfig.Receivers = buildReceivers(fp.Receivers)
 
 	for _, ir := range fp.InhibitRules {
 		alertConfig.InhibitRules = append(alertConfig.InhibitRules, mimir.InhibitRule{
@@ -392,6 +318,44 @@ func (e *external) buildAlertmanagerConfig(cr *alertmanagerv1.Config) *mimir.Ale
 		TemplateFiles:      fp.TemplatesFiles,
 		AlertmanagerConfig: mustMarshalYAML(alertConfig),
 	}
+}
+
+func buildReceivers(receivers []alertmanagerv1.ReceiverConfig) []mimir.Receiver {
+	out := make([]mimir.Receiver, 0, len(receivers))
+	for _, r := range receivers {
+		receiver := mimir.Receiver{Name: r.Name}
+		for _, ec := range r.EmailConfigs {
+			receiver.EmailConfigs = append(receiver.EmailConfigs, mimir.EmailConfig{
+				To:           ptrToStr(ec.To),
+				From:         ptrToStr(ec.From),
+				Smarthost:    ptrToStr(ec.Smarthost),
+				AuthUsername: ptrToStr(ec.AuthUsername),
+				HTML:         ptrToStr(ec.HTML),
+				Text:         ptrToStr(ec.Text),
+				RequireTLS:   ec.RequireTLS,
+				SendResolved: ptrToBool(ec.SendResolved),
+			})
+		}
+		for _, sc := range r.SlackConfigs {
+			receiver.SlackConfigs = append(receiver.SlackConfigs, mimir.SlackConfig{
+				Channel:      ptrToStr(sc.Channel),
+				Username:     ptrToStr(sc.Username),
+				IconEmoji:    ptrToStr(sc.IconEmoji),
+				IconURL:      ptrToStr(sc.IconURL),
+				Title:        ptrToStr(sc.Title),
+				Text:         ptrToStr(sc.Text),
+				SendResolved: ptrToBool(sc.SendResolved),
+			})
+		}
+		for _, wc := range r.WebhookConfigs {
+			receiver.WebhookConfigs = append(receiver.WebhookConfigs, mimir.WebhookConfig{
+				URL:          ptrToStr(wc.URL),
+				SendResolved: ptrToBool(wc.SendResolved),
+			})
+		}
+		out = append(out, receiver)
+	}
+	return out
 }
 
 func (e *external) buildRoute(rc *alertmanagerv1.RouteConfig) *mimir.Route {

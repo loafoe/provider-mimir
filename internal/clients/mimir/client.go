@@ -80,42 +80,9 @@ func NewClient(cfg Config) (*Client, error) {
 		return nil, fmt.Errorf("mimir URI is required")
 	}
 
-	uri := strings.TrimSuffix(cfg.URI, "/")
-	rulerURI := strings.TrimSuffix(cfg.RulerURI, "/")
-	alertmanagerURI := strings.TrimSuffix(cfg.AlertmanagerURI, "/")
-
-	tlsConfig := &tls.Config{
-		InsecureSkipVerify: cfg.Insecure, //nolint:gosec
-	}
-
-	if cfg.Cert != "" && cfg.Key != "" {
-		var cert tls.Certificate
-		var err error
-		if strings.HasPrefix(cfg.Cert, "-----BEGIN") && strings.HasPrefix(cfg.Key, "-----BEGIN") {
-			cert, err = tls.X509KeyPair([]byte(cfg.Cert), []byte(cfg.Key))
-		} else {
-			cert, err = tls.LoadX509KeyPair(cfg.Cert, cfg.Key)
-		}
-		if err != nil {
-			return nil, fmt.Errorf("failed to load client certificate: %w", err)
-		}
-		tlsConfig.Certificates = []tls.Certificate{cert}
-	}
-
-	if cfg.CA != "" {
-		var caCert []byte
-		var err error
-		if strings.HasPrefix(cfg.CA, "-----BEGIN") {
-			caCert = []byte(cfg.CA)
-		} else {
-			caCert, err = io.ReadAll(strings.NewReader(cfg.CA))
-			if err != nil {
-				return nil, fmt.Errorf("failed to read CA certificate: %w", err)
-			}
-		}
-		caCertPool := x509.NewCertPool()
-		caCertPool.AppendCertsFromPEM(caCert)
-		tlsConfig.RootCAs = caCertPool
+	tlsConfig, err := newTLSConfig(cfg)
+	if err != nil {
+		return nil, err
 	}
 
 	timeout := cfg.Timeout
@@ -133,9 +100,9 @@ func NewClient(cfg Config) (*Client, error) {
 			Timeout:   timeout,
 			Transport: transport,
 		},
-		uri:             uri,
-		rulerURI:        rulerURI,
-		alertmanagerURI: alertmanagerURI,
+		uri:             strings.TrimSuffix(cfg.URI, "/"),
+		rulerURI:        strings.TrimSuffix(cfg.RulerURI, "/"),
+		alertmanagerURI: strings.TrimSuffix(cfg.AlertmanagerURI, "/"),
 		orgID:           cfg.OrgID,
 		token:           cfg.Token,
 		username:        cfg.Username,
@@ -144,37 +111,103 @@ func NewClient(cfg Config) (*Client, error) {
 	}, nil
 }
 
-// sendRequest performs an HTTP request to the Mimir API.
-func (c *Client) sendRequest(ctx context.Context, component, method, path, data string, extraHeaders map[string]string) (string, error) {
-	var fullURI string
-
-	switch component {
-	case "ruler":
-		if c.rulerURI != "" {
-			fullURI = c.rulerURI + path
-		} else {
-			fullURI = c.uri + path
-		}
-	case "alertmanager":
-		if c.alertmanagerURI != "" {
-			fullURI = c.alertmanagerURI + path
-		} else {
-			fullURI = c.uri + path
-		}
-	default:
-		fullURI = c.uri + path
+// newTLSConfig builds the TLS configuration for the HTTP client.
+func newTLSConfig(cfg Config) (*tls.Config, error) {
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: cfg.Insecure, //nolint:gosec
 	}
 
+	if cfg.Cert != "" && cfg.Key != "" {
+		cert, err := loadKeyPair(cfg.Cert, cfg.Key)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load client certificate: %w", err)
+		}
+		tlsConfig.Certificates = []tls.Certificate{cert}
+	}
+
+	if cfg.CA != "" {
+		pool, err := newCertPool(cfg.CA)
+		if err != nil {
+			return nil, err
+		}
+		tlsConfig.RootCAs = pool
+	}
+
+	return tlsConfig, nil
+}
+
+// loadKeyPair loads a client certificate/key pair from inline PEM or files.
+func loadKeyPair(cert, key string) (tls.Certificate, error) {
+	if strings.HasPrefix(cert, "-----BEGIN") && strings.HasPrefix(key, "-----BEGIN") {
+		return tls.X509KeyPair([]byte(cert), []byte(key))
+	}
+	return tls.LoadX509KeyPair(cert, key)
+}
+
+// newCertPool builds a certificate pool from inline PEM or a file.
+func newCertPool(ca string) (*x509.CertPool, error) {
+	caCert := []byte(ca)
+	if !strings.HasPrefix(ca, "-----BEGIN") {
+		var err error
+		caCert, err = io.ReadAll(strings.NewReader(ca))
+		if err != nil {
+			return nil, fmt.Errorf("failed to read CA certificate: %w", err)
+		}
+	}
+	pool := x509.NewCertPool()
+	pool.AppendCertsFromPEM(caCert)
+	return pool, nil
+}
+
+// sendRequest performs an HTTP request to the Mimir API.
+func (c *Client) sendRequest(ctx context.Context, component, method, path, data string, extraHeaders map[string]string) (string, error) {
 	var reqBody io.Reader
 	if data != "" {
 		reqBody = bytes.NewBufferString(data)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, fullURI, reqBody)
+	req, err := http.NewRequestWithContext(ctx, method, c.resolveURI(component, path), reqBody)
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}
 
+	c.setHeaders(req, extraHeaders)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("request failed: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %w", err)
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return string(body), fmt.Errorf("unexpected response code '%d': %s", resp.StatusCode, string(body))
+	}
+
+	return string(body), nil
+}
+
+// resolveURI returns the full URL for the given component and path.
+func (c *Client) resolveURI(component, path string) string {
+	switch component {
+	case "ruler":
+		if c.rulerURI != "" {
+			return c.rulerURI + path
+		}
+	case "alertmanager":
+		if c.alertmanagerURI != "" {
+			return c.alertmanagerURI + path
+		}
+	}
+	return c.uri + path
+}
+
+// setHeaders applies authentication and custom headers to a request.
+func (c *Client) setHeaders(req *http.Request, extraHeaders map[string]string) {
 	if c.token != "" {
 		req.Header.Set("Authorization", "Bearer "+c.token)
 	} else if c.username != "" && c.password != "" {
@@ -192,23 +225,6 @@ func (c *Client) sendRequest(ctx context.Context, component, method, path, data 
 	if c.orgID != "" && req.Header.Get("X-Scope-OrgID") == "" {
 		req.Header.Set("X-Scope-OrgID", c.orgID)
 	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to read response: %w", err)
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return string(body), fmt.Errorf("unexpected response code '%d': %s", resp.StatusCode, string(body))
-	}
-
-	return string(body), nil
 }
 
 // IsNotFound checks if an error indicates the resource was not found.

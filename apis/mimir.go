@@ -30,14 +30,12 @@ import (
 
 func init() {
 	// Register the types with the Scheme so the components can map objects to GroupVersionKinds and back
-	// Cluster-scoped resources (mimir.crossplane.io)
 	AddToSchemes = append(AddToSchemes,
+		// Cluster-scoped resources (mimir.crossplane.io)
 		v1.AddToScheme,
 		alertmanagerv1.AddToScheme,
 		rulerv1.AddToScheme,
-	)
-	// Namespaced resources (mimir.m.crossplane.io)
-	AddToSchemes = append(AddToSchemes,
+		// Namespaced resources (mimir.m.crossplane.io)
 		mv1.AddToScheme,
 		malertmanagerv1.AddToScheme,
 		mrulerv1.AddToScheme,
